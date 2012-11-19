@@ -1,0 +1,8 @@
+I took some pinhole mask images:
+they're in Lab/LB04
+
+154-155 11.3um
+158-159 19.7um
+162-163 37.1um
+164-165 19.7/37.1um
+166-167 darks

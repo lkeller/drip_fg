@@ -1,0 +1,2 @@
+/Users/lkeller/Research/fg_widget_github/FG_Widget/DEMO_GRISM_DATA_v2.0/R/rLB044_0136.fits
+/Users/lkeller/Research/fg_widget_github/FG_Widget/DEMO_GRISM_DATA_v2.0/R/rLB044_0136.fits
