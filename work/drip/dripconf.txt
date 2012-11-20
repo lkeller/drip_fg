@@ -20,8 +20,8 @@ find_cal='N'
 ; FLATFIELDED data (skips undistort and stack pipesteps)
 ; cormerge='CENT' triggers drip_merge to use centroid
 ; cormerge='N' triggers drip_merge to use nominal chop/nod positions
-CORMERGE = 'COR'
-CORCOADD = 'COR'
+CORMERGE = 'CENT'
+CORCOADD = 'CENT'
 ; jbclean = 'FFT' triggers cleaning jailbar pattern with fft
 ; jbclean='MEDIAN' trigger cleaning jailbar pattern with median filter
 ; jbclean='N' no jailbar cleaning
