@@ -43,7 +43,13 @@ common drip_config_info, dripconf
 
 map=map
 
-readcol, 'DEMO_GRISM_DATA_v2.3/Cal/wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
+datadir = drip_getpar(header, 'CALDATA')
+if datadir eq 'x' then begin
+  print,'Error finding wavecal.txt'
+  print,'Spectrum extraction failed'
+  return,data
+endif
+readcol, datadir+'wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
 
 orderslist=orders
 

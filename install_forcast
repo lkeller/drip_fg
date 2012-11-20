@@ -86,14 +86,20 @@ if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
   
   # Create dripstart.start file
   fstart="dripstart.start"
+  if [[ -f $fstart ]]; then
+    echo "Removed existing $fstart"
+    rm $fstart
+  fi
   echo "Creating $fstart..."
   touch $inst_work${path_sep}$fstart
   echo "device, true_color=24" >> $inst_work${path_sep}$fstart
   echo "device, decomposed=0" >> $inst_work${path_sep}$fstart
   echo "device, retain=2" >> $inst_work${path_sep}$fstart
   echo "" >> $inst_work${path_sep}$fstart
+  #echo "!PATH= '+$inst_work${path_sep}drip${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}'" >> $inst_work${path_sep}$fstart
   echo "!PATH= '+$inst_work${path_sep}drip${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}:+' +!dir" >> $inst_work${path_sep}$fstart
   echo "!PATH=EXPAND_PATH(!PATH,/all_dirs)" >> $inst_work${path_sep}$fstart
+  #echo "!PATH=!PATH+': +' +!dir" >> $inst_work${path_sep}$fstart
   echo "cd,'$inst_work${path_sep}drip'" >> $inst_work${path_sep}$fstart
   
   
@@ -113,14 +119,20 @@ if [[ -d "$destination${path_sep}work${path_sep}fg" ]]; then
   
   # Create dripstart.start file
   fstart="fg_start.start"
+  if [[ -f $fstart ]]; then
+    echo "Removed existing $fstart"
+    rm $fstart
+  fi
   echo "Creating $fstart..."
   touch $inst_work${path_sep}$fstart
   echo "device, true_color=24" >> $inst_work${path_sep}$fstart
   echo "device, decomposed=0" >> $inst_work${path_sep}$fstart
   echo "device, retain=2" >> $inst_work${path_sep}$fstart
   echo "" >> $inst_work${path_sep}$fstart
+  #echo "!PATH= '+$inst_work${path_sep}fg${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}'" >> $inst_work${path_sep}$fstart
   echo "!PATH= '+$inst_work${path_sep}fg${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}:+' +!dir" >> $inst_work${path_sep}$fstart
   echo "!PATH=EXPAND_PATH(!PATH,/all_dirs)" >> $inst_work${path_sep}$fstart
+  #echo "!PATH=!PATH+':' +!dir" >> $inst_work${path_sep}$fstart
   echo "cd,'$inst_work${path_sep}fg'" >> $inst_work${path_sep}$fstart
 fi
 

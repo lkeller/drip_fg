@@ -1,4 +1,4 @@
-caldata='/home/mcharcos/Documents/Pipelines/forcast/nov2012/fg/forcast/fg_deploy/data/'
+caldata='/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/data/'
                                                                            
 
 ;; All the path of the calibration files will be taking wrt this directory

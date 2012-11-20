@@ -308,8 +308,13 @@ dy=self.boxy1-self.boxy2 ; height
 
 slope= float(self.boxy2-self.boxy0)/float(self.boxx2-self.boxx0) ;slope
 
-;Add wavecal here
-readcol, 'DEMO_GRISM_DATA_v2.0/Cal/wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
+;Add wavecal heredatadir = drip_getpar(header, 'CALDATA')
+if datadir eq 'x' then begin
+  print,'drip_extman::user_defined_extraction -Error finding wavecal.txt'
+  print,'drip_extman::user_defined_extraction - Spectrum extraction failed'
+  return
+endif
+readcol, datadir+'wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
 ;xvalues
 ;print,*self.orders
     
