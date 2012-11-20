@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+
+if [[ $(uname -o |grep Darwin) ]]; then  
+  path_sep="/"
+else
+  path_sep="/"
+fi
+
+source=${1%$path_sep}
+destination=${2%$path_sep}
+
+ls $source >> /dev/null|| exit 1
+
+# Check if the destination is a directory
+if ! [ -d $destination ]; then 
+  echo "$destination is not a directory"
+  exit 1
+fi
+
+# When the destination does not contain the source (that is we did not use -c source
+# therefore $source is set to $destination) we check if the destination is empty and we copy the 
+# source to the destination
+if [[ "$destination" != "$source" ]]; then
+  if [[ $(ls -A $destination) ]]; then 
+    echo "$destination is not empty"
+    exit 1
+  fi
+  
+  if [[ -d $source ]]; then 
+    # find what directory is the top level of the code
+    # and move the source to the $destination
+    tmp=$(mktemp)
+    find $source -name 'data' -o -name 'work' | sort >"$tmp"
+    rootdir=$(
+              comm -12 <(<$tmp sed -n 's!/[^/]*\data$!!p' | sort) \
+              <(<$tmp sed -n 's!/[^/]*\work$!!p' | sort)
+	      )
+    rm "$tmp"
+    
+    if ! [[ -d $rootdir ]]; then 
+      echo "Verify your source file structure: $source"
+      rm -rf $destination${path_sep}*
+      exit 1
+    fi 
+    
+    echo "Copying package $rootdir into directory $destination..."
+    cp -rf $rootdir$path_sep* $destination
+    echo "cp -rf $rootdir$path_sep* $destination"
+  else
+    echo "Transfering code to $destination from $source..."
+    # Create a temporary directory in destination
+    mkdir -p "$destination${path_sep}tmp"
+    
+    # Even more clean, we could also use: filetype=file -ib $source
+    if [[ ${source: -4} == .zip ]]; then
+      echo "Extracting zip file $source into directory $destination..."
+      unzip $source -d "$destination${path_sep}tmp"
+    elif [[ ${source: -4} == .tar ]]; then
+      echo "Extracting tar file $source into directory $destination..."
+      tar -C "$destination${path_sep}tmp" -xvf $source
+    else
+      echo "Extension of $source is not recognized. This script only handles zip or tar files"
+      echo "If you are interested about any other compression type email mcharcos@sofia.usra.edu with your request"
+      exit 1
+    fi
+    
+    # find what directory is the top level of the code
+    # and move the source to the $destination
+    tmp=$(mktemp)
+    find "$destination/tmp" -name 'data' -o -name 'work' | sort >"$tmp"
+    rootdir=$(
+              comm -12 <(<$tmp sed -n 's!/[^/]*\data$!!p' | sort) \
+              <(<$tmp sed -n 's!/[^/]*\work$!!p' | sort)
+	      )
+    rm "$tmp"
+    
+    if [[ -d $rootdir ]]; then 
+      mv $rootdir/* $destination
+    else
+      echo "Verify your source file structure: $source"
+      rm -rf $destination${path_sep}*
+      exit 1
+    fi 
+    
+    # Remove the temporary directory that we created to extract the compressed file
+    rm -rf $destination${path_sep}tmp
+  fi
+else
+  echo "Source code in destination: $destination"
+fi
+
+# Now we verify that the files and directory structure in destination are correct
+# We check if the file structure correspond to the expected for drip
+correct_file_structure=1
+if ! [[ -d $destination${path_sep}data ]]; then 
+  echo "data directory is not in source code"
+  correct_file_structure=0
+fi
+if ! [[ -d $destination${path_sep}work ]]; then 
+  echo "work directory is not in source code"
+  correct_file_structure=0
+fi
+if ! [[ -d $destination${path_sep}libs ]]; then 
+  echo "work directory is not in source code"
+  correct_file_structure=0
+fi
+if ! [[ -f $destination${path_sep}work${path_sep}drip${path_sep}dripconf.txt ]]; then 
+  echo "dripconf.txt directory is not in work/drip directory"
+  correct_file_structure=0
+fi
+if ! [[ -f $destination${path_sep}work${path_sep}drip${path_sep}guiconf.txt ]]; then 
+  echo "guiconf.txt directory is not in work/drip directory"
+  correct_file_structure=0
+fi
+if ! [[ -f $destination${path_sep}work${path_sep}fg${path_sep}dripconf.txt ]]; then 
+  echo "dripconf.txt directory is not in work/fg directory"
+  correct_file_structure=0
+fi
+if ! [[ -f $destination${path_sep}work${path_sep}fg${path_sep}guiconf.txt ]]; then 
+  echo "guiconf.txt directory is not in work/fg directory"
+  correct_file_structure=0
+fi
+
+if [ $correct_file_structure -eq  0 ]; then 
+  echo "Verify your source file structure: $source"
+  if [[ "$destination" != "$source" ]]; then rm -rf $destination${path_sep}*; fi
+  exit 1
+fi
+
+
+exit 0
+

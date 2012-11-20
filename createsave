@@ -1,0 +1,179 @@
+#!/usr/bin/env bash
+
+# Define separation slash depending on OS (="/" for linux/Unix; "\" for MacOS; not Windows since we are running a shell script)
+if [[ $(uname -o |grep Darwin) ]]; then  
+  path_sep="\\"
+else
+  path_sep="/"
+fi
+
+workdir=${!#%$path_sep}
+
+if ! [[ -d $workdir ]]; then
+  echo "Directory $!#  does not exist"
+  exit 1
+fi
+
+if ! [[ -d "$workdir/work" ]]; then
+  if ! [[ -f "$workdir/dripstart.start" ]]; then
+    echo "Directory $workdir/work and file $workdir/dripstart.start do not exist"
+    echo "Verify that you are running this in a drip installation"
+    exit 1
+  else
+    fstart="$workdir/dripstart.start"
+  fi
+else
+  if ! [[ -f "$workdir/work/dripstart.start" ]]; then
+    echo "File $workdir/work/dripstart.start does not exist at $1/work/"
+    echo "Verify that you are running this in a drip installation"
+    exit 1
+  else 
+    fstart="$workdir/work/dripstart.start"
+    workdir="$workdir/work"
+  fi
+fi
+
+# now we call idl with the following compilations
+echo "Copying runpipe.pro routine from pipeline storage"
+cp runpipe.pro $workdir
+
+echo "Starting sav file creation..."
+(
+echo ".reset"
+echo "@$fstart"
+
+echo "; compile files of the library"
+echo ".compile drip_jbclean.pro"   
+echo ".compile check_fits.pro"      
+echo ".compile fits_read.pro"   
+echo ".compile isarray.pro" 
+echo ".compile strn.pro"
+echo ".compile convolve.pro"        
+echo ".compile fits_write.pro"      
+echo ".compile is_ieee_big.pro"   
+echo ".compile strnumber_bck.pro"
+echo ".compile ftp_get_forcast_data_file.pro"  
+echo ".compile jailbar.pro"       
+echo ".compile strnumber.pro"
+echo ".compile daycnv.pro"         
+echo ".compile detabify.pro"       
+echo ".compile dist_circle.pro"    
+echo ".compile distcorr_model.pro" 
+echo ".compile filter_image.pro"   
+echo ".compile find_peak_all.pro"  
+echo ".compile fits_close.pro"     
+echo ".compile fits_open.pro"      
+echo ".compile fxaddpar.pro"			 
+echo ".compile fxparpos.pro"			 
+echo ".compile fxpar.pro"			 
+echo ".compile gaussian.pro"			 
+echo ".compile get_date.pro"			 
+echo ".compile gettok.pro"			 
+echo ".compile headfits.pro"			 
+echo ".compile host_to_ieee.pro"	       
+echo ".compile ieee_to_host.pro"	       
+echo ".compile mkhdr.pro"	
+echo ".compile mrdfits.pro"	
+echo ".compile poltransf.pro"	
+echo ".compile psf_gaussian.pro"
+echo ".compile readfits.pro"	
+echo ".compile read_section.pro"
+echo ".compile sigma_filter.pro"
+echo ".compile sky.pro"
+echo ".compile sxaddpar.pro"
+echo ".compile sxdelpar.pro"
+echo ".compile sxpar2.pro"
+echo ".compile sxpar.pro"
+echo ".compile valid_num.pro"
+echo ".compile wherenan.pro"
+echo ".compile writefits.pro"
+
+echo "; compile files of library maskinterp-1.2"
+echo ".compile coord.pro"  
+echo ".compile disc.pro"   
+echo ".compile keyword_defined.pro"  
+echo ".compile splinterp.pro"
+echo ".compile chebyshfit.pro"  
+echo ".compile csplinterp.pro"  
+echo ".compile filecomp.pro"  
+echo ".compile maskinterp.pro" 
+echo ".compile testinterp.pro"
+echo ".compile chvarchg.pro"
+echo ".compile gausfit.pro"   
+echo ".compile plsfit.pro" 
+echo ".compile twoordfit.pro"
+
+echo "; compile library at drip_gui/support"
+echo ";.compile edit_string_list.pro"  
+echo ";.compile makephoto.pro"  
+echo ";.compile smtv.pro"
+echo ";.compile atv22.pro"      
+echo ";.compile cw_color_sel.pro"     
+echo ";.compile getpar.pro"            
+echo ";.compile poltransf.pro"  
+echo ";.compile temp.pro"
+echo ";.compile atv.pro"        
+echo ";.compile dialog_input.pro"     
+echo ".compile imcentroid.pro"        
+echo ";.compile rmpar.pro"      
+echo ";.compile which.pro"
+echo ";.compile cmps_form.pro"  
+echo ";.compile edit_param_list.pro"  
+echo ";.compile keyword_replace.pro"   
+echo ";.compile setpar.pro"
+
+echo "; compile library at drip_gui/support/astron"
+echo ".compile readcol.pro"
+echo ".compile remove.pro"
+echo ".compile frebin.pro"
+echo ".compile hrebin.pro"
+echo ".compile extast.pro"
+echo ".compile zparcheck.pro"
+echo ".compile remchar.pro"
+echo ".compile correl_images.pro"
+echo ".compile corrmat_analyze.pro"
+
+echo "; compile drip_common directory files"
+echo ".compile drip_config_load.pro"   
+echo ".compile drip__define.pro"
+echo ".compile drip__define.pro"    
+echo ".compile drip_merge.pro"        
+echo ".compile drip_background.pro"     
+echo ".compile drip_clean.pro"          
+echo ".compile drip_coadd.pro"         
+echo ".compile drip_undistort.pro"
+echo ".compile drip_droop.pro"     
+echo ".compile drip_flat.pro"	   
+echo ".compile drip_getpar.pro"    
+echo ".compile drip_imgnonlin.pro" 
+echo ".compile drip_message.pro" 
+echo ".compile drip_new.pro"	 
+echo ".compile drip_nonlin.pro"
+echo ".compile drip_stack.pro"
+
+echo "; compile files in mode directories"
+echo ".compile c2__define.pro"  
+echo ".compile c2_pipe.pro"
+echo ".compile c2n__define.pro"  
+echo ".compile c2n_pipe.pro"  
+echo ".compile c2n_pipe_saveall.pro"
+echo ".compile c2nc2__define.pro"  
+echo ".compile c2nc2_pipe.pro"
+echo ".compile c2nd__define.pro"  
+echo ".compile c2nd_pipe.pro"
+echo ".compile c3d__define.pro"  
+echo ".compile c3d_pipe.pro"
+echo ".compile cm__define.pro"  
+echo ".compile cm_pipe.pro"
+echo ".compile map__define.pro"  
+echo ".compile map_pipe.pro"
+echo ".compile stare__define.pro"  
+echo ".compile stare_pipe.pro"
+echo ".compile test__define.pro"  
+echo ".compile test_pipe.pro"
+
+echo "; compile wraper procedure"
+echo ".compile runpipe.pro"
+
+echo "save, /ROUTINES, filename='drip.sav'"
+) | idl

@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+
+#compound opts=(verbose=)
+ME=install_forcast
+
+usage=$'
+  [+NAME?install_forcast - install drip in a specific directory and modify paths in configuration file]
+  [+DESCRIPTION?Given a input directory or tar file containing the source this tool will move 
+                the source to the destination directory and modify text files to match the specified
+		directories to the directories of the installation]
+  [c:copy from a given location. If not specified the tool assumes that the destination directory contains the source
+  and data]
+  [v:verbose?Print files as they are transferred.]
+  [+EXAMPLE]{
+    [+./install_drip /home/mcharcos/Downloads/forcast /usr/local/drip?Install drip at /usr/local/drip by
+      copying the source from the forcast directory in Downloads.]
+    [+./install_drip /home/mcharcos/Downloads/forcast.tar /usr/local/drip?Install drip at /usr/local/drip by
+      untaring the forcast.tar in directory in Downloads and copying the uncompressed files to the destination.]}
+  [+EXIT VAUES]{
+    [+0?Success.]
+    [+1?Failure.]}
+  [+SEE ALSO? none]'
+
+# Define separation slash depending on OS (="/" for linux/Unix; "/" for MacOS; not Windows since we are running a shell script)
+if [[ $(uname -o |grep Darwin) ]]; then  
+  path_sep="/"
+else
+  path_sep="/"
+fi
+destination=${!#%$path_sep}
+source=$destination
+
+# Read input options
+while getopts v:s:hg option
+do 
+  case "${option}"
+  in
+    v) echo "verbose";;
+    s) source=${OPTARG%$path_sep};;
+    h) echo $usage && exit 0;;
+  esac
+done
+
+if [ "$#" -lt 1 ]; then 
+  echo "Usage: install_drip -s source - v -g destination_directory"
+  echo "    Source should be a directory with structure "
+  echo "                              + drip${path_sep}work"
+  echo "                              + drip${path_sep}data"
+  echo "    If not specified the destination should contain this file structure"
+  echo
+  if [ "$#" -eq 0 ]; then 
+    echo "Missing destination"
+    exit 1
+  fi
+fi
+
+# Move or extract source in destination (if necessary)
+# and verify the directory structure
+./forcast_dir_setup $source $destination
+if [ $? -ne 0 ]; then 
+  echo "Installation failed"
+  exit 1
+fi
+
+# define the work and the data directory
+inst_work=$(cd "$destination${path_sep}work" && pwd)
+echo "Source code directory: $inst_work"
+inst_data=$(cd "$destination${path_sep}data" && pwd)
+echo "Data directory: $inst_data"
+inst_libs=$(cd "$destination${path_sep}libs" && pwd)
+echo "Library directory: $inst_libs"
+
+# Modify configuration files: dripconf.txt and guiconf.txt
+# for drip and fg
+if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
+  echo "========"
+  echo "= DRIP ="
+  echo "========"  
+  echo "Setting drip pipeline configuration..."
+  echo "Modifying dripconf and guiconf files..."
+  ./config_setup $inst_work${path_sep}drip $inst_data
+  if [ $? -ne 0 ]; then 
+    echo "Installation failed"
+    exit 1
+  fi
+  
+  # Create dripstart.start file
+  fstart="dripstart.start"
+  echo "Creating $fstart..."
+  touch $inst_work${path_sep}$fstart
+  echo "device, true_color=24" >> $inst_work${path_sep}$fstart
+  echo "device, decomposed=0" >> $inst_work${path_sep}$fstart
+  echo "device, retain=2" >> $inst_work${path_sep}$fstart
+  echo "" >> $inst_work${path_sep}$fstart
+  echo "!PATH= '+$inst_work${path_sep}drip${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}:+' +!dir" >> $inst_work${path_sep}$fstart
+  echo "!PATH=EXPAND_PATH(!PATH,/all_dirs)" >> $inst_work${path_sep}$fstart
+  echo "cd,'$inst_work${path_sep}drip'" >> $inst_work${path_sep}$fstart
+  
+  
+fi
+
+if [[ -d "$destination${path_sep}work${path_sep}fg" ]]; then
+  echo "========"
+  echo "=  FG  ="
+  echo "========"  
+  echo "Setting drip pipeline configuration..."
+  echo "Modifying dripconf and guiconf files..."
+  ./config_setup "$inst_work${path_sep}fg" "$inst_data"
+  if [ $? -ne 0 ]; then 
+    echo "Installation failed"
+    exit 1
+  fi
+  
+  # Create dripstart.start file
+  fstart="fg_start.start"
+  echo "Creating $fstart..."
+  touch $inst_work${path_sep}$fstart
+  echo "device, true_color=24" >> $inst_work${path_sep}$fstart
+  echo "device, decomposed=0" >> $inst_work${path_sep}$fstart
+  echo "device, retain=2" >> $inst_work${path_sep}$fstart
+  echo "" >> $inst_work${path_sep}$fstart
+  echo "!PATH= '+$inst_work${path_sep}fg${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}:+' +!dir" >> $inst_work${path_sep}$fstart
+  echo "!PATH=EXPAND_PATH(!PATH,/all_dirs)" >> $inst_work${path_sep}$fstart
+  echo "cd,'$inst_work${path_sep}fg'" >> $inst_work${path_sep}$fstart
+fi
+
+
+# Now we are going to create an executable (shell wrapper) as a shorcut for running drip
+if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
+  dripdir=$(cd $destination${path_sep}work${path_sep}drip${path_sep} && pwd)
+  dripexec="$dripdir${path_sep}drip"
+  if [[ -f $dripexec ]]; then rm $dripexec; fi
+  touch $dripexec
+  echo "#!/usr/bin/env bash" >> $dripexec
+  echo "(" >> $dripexec
+  echo " echo \"@$dripdir${path_sep}dripstart.start\"" >> $dripexec
+  echo " echo \"gui\"" >> $dripexec
+  #echo " echo \"input=''\""  >> $dripexec
+  #echo " echo \"while (input ne 'q') do begin\""  >> $dripexec
+  #echo " echo \"read, "Press q to quit: ", input\""  >> $dripexec
+  #echo " echo \"endwhile\""  >> $dripexec
+  echo ")|idl" >> $dripexec
+  chmod u+x $dripexec
+
+  echo "Add this line to your .bashrc file:"
+  echo "    alias $pipeline=$dripdir${path_sep}drip"
+  echo "You will be able to run drip from any directory"
+fi
+
+if [[ -d "$destination${path_sep}work${path_sep}fg" ]]; then
+  dripdir="$destination${path_sep}work${path_sep}fg${path_sep}"
+  dripdir=$(cd $dripdir && pwd)
+  dripexec="$dripdir${path_sep}fg"
+  if [[ -f $dripexec ]]; then rm $dripexec; fi
+  touch $dripexec
+  echo "#!/usr/bin/env bash" >> $dripexec
+  echo "(" >> $dripexec
+  echo " echo \"@$dripdir${path_sep}fgstart.start\"" >> $dripexec
+  echo " echo \"gui\"" >> $dripexec
+  #echo " echo \"input=''\""  >> $dripexec
+  #echo " echo \"while (input ne 'q') do begin\""  >> $dripexec
+  #echo " echo \"read, "Press q to quit: ", input\""  >> $dripexec
+  #echo " echo \"endwhile\""  >> $dripexec
+  echo ")|idl" >> $dripexec
+  chmod u+x $dripexec
+
+  echo "Add this line to your .bashrc file:"
+  echo "    alias $pipeline=$dripdir${path_sep}drip"
+  echo "You will be able to run fg from any directory"
+fi
+
+exit 0
