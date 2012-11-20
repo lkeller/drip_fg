@@ -144,8 +144,8 @@ pro fg, xsize=xs, ysize=ys, dataman=dataman_return, _extra=e
 if not keyword_set(xs) then xs=256
 if not keyword_set(ys) then ys=xs
 
-cd,current=currentpath
-!path=expand_path('+'+currentpath)+':'+expand_path('+'+!dir)
+;cd,current=currentpath
+;!path=expand_path('+'+currentpath)+':'+expand_path('+'+!dir)
 
 ; create gui common block (fonts, pathcut)
 COMMON gui_os_dependent_values, largefont, smallfont, mediumfont
