@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
-
-if [[ $(uname -o |grep Darwin) ]]; then  
-  path_sep="/"
-else 
-  path_sep="/"
-fi
+path_sep="/"
 
 # Now we need to set the data path directories in guiconf.txt
 default_data_path="$HOME"
@@ -19,17 +14,29 @@ echo "Data directory: $inst_data"
 
 # Substitue all the lines in dripconf.txt to match the current path installation
 echo "Modifying CALDATA in dripconf.txt..."
-#sed -i 's,@caldata,'"$inst_data/"',g' $inst_work/dripconf.txt;
-sed -i "/caldata=/c\caldata='$inst_data${path_sep}'" $inst_work${path_sep}dripconf.txt
-sed -i "/caldata =/c\caldata = '$inst_data${path_sep}'" $inst_work${path_sep}dripconf.txt
+#sed -i "" 's,@caldata,'"$inst_data/"',g' $inst_work/dripconf.txt;
+sed -i "" "/caldata=/c\\
+caldata='$inst_data${path_sep}'
+" $inst_work${path_sep}dripconf.txt
+sed -i "" "/caldata =/c\\
+caldata = '$inst_data${path_sep}'
+" $inst_work${path_sep}dripconf.txt
 
 # Substitue all the lines in guiconf.txt to match the current path installation
 echo "Modifying AUTO_LISTFILE in guiconf.txt..."
-sed -i "/AUTO_LISTFILE=/c\AUTO_LISTFILE='$destination${path_sep}autopipetest.log'" $inst_work${path_sep}guiconf.txt
-sed -i "/AUTO_LISTFILE =/c\AUTO_LISTFILE ='$destination${path_sep}autopipetest.log'" $inst_work${path_sep}guiconf.txt
+sed -i "" "/AUTO_LISTFILE=/c\\
+AUTO_LISTFILE='$destination${path_sep}autopipetest.log'
+" $inst_work${path_sep}guiconf.txt
+sed -i "" "/AUTO_LISTFILE =/c\\
+AUTO_LISTFILE ='$destination${path_sep}autopipetest.log'
+" $inst_work${path_sep}guiconf.txt
 echo "Modifying LOGFILE in guiconf.txt..."
-sed -i "/LOGFILE=/c\LOGFILE='$inst_work${path_sep}driplog.log'" $inst_work${path_sep}guiconf.txt
-sed -i "/LOGFILE =/c\LOGFILE ='$inst_work${path_sep}driplog.log'" $inst_work${path_sep}guiconf.txt
+sed -i "" "/LOGFILE=/c\\
+LOGFILE='$inst_work${path_sep}driplog.log'
+" $inst_work${path_sep}guiconf.txt
+sed -i "" "/LOGFILE =/c\\
+LOGFILE ='$inst_work${path_sep}driplog.log'
+" $inst_work${path_sep}guiconf.txt
 
 
 echo "Default paths are set to $default_data_path"
@@ -57,8 +64,12 @@ if [[ "${loaddatapath#${loaddatapath%?}}" != "${path_sep}" ]]; then
 fi
 echo "Modifying LOADDATAPATH in guiconf.txt..."
 echo "        Input loaddatapath is $loaddatapath" 
-sed -i "/LOADDATAPATH=/c\LOADDATAPATH='$loaddatapath'" $inst_work${path_sep}guiconf.txt
-sed -i "/LOADDATAPATH =/c\LOADDATAPATH ='$loaddatapath'" $inst_work${path_sep}guiconf.txt
+sed -i "" "/LOADDATAPATH=/c\\
+LOADDATAPATH='$loaddatapath'
+" $inst_work${path_sep}guiconf.txt
+sed -i "" "/LOADDATAPATH =/c\\
+LOADDATAPATH ='$loaddatapath'
+" $inst_work${path_sep}guiconf.txt
 default_data_path=$loaddatapath
 
 # Modify SAVEPATH in guiconf.txt
@@ -84,8 +95,12 @@ if [[ "${loaddatapath#${loaddatapath%?}}" != "${path_sep}" ]]; then
 fi
 echo "Modifying SAVEPATH in guiconf.txt..."
 echo "        Input savepath is $loaddatapath" 
-sed -i "/SAVEPATH=/c\SAVEPATH='$loaddatapath'" $inst_work${path_sep}guiconf.txt
-sed -i "/SAVEPATH =/c\SAVEPATH ='$loaddatapath'" $inst_work${path_sep}guiconf.txt
+sed -i "" "/SAVEPATH=/c\\
+SAVEPATH='$loaddatapath'
+" $inst_work${path_sep}guiconf.txt
+sed -i "" "/SAVEPATH =/c\\
+SAVEPATH ='$loaddatapath'
+" $inst_work${path_sep}guiconf.txt
 default_data_path=$loaddatapath
 
 # Modify SAVECALPATH in guiconf.txt
@@ -111,8 +126,12 @@ if [[ "${loaddatapath#${loaddatapath%?}}" != "${path_sep}" ]]; then
 fi
 echo "Modifying SAVECALPATH in guiconf.txt..."
 echo "        Input savecalpath is $loaddatapath" 
-sed -i "/SAVECALPATH=/c\SAVECALPATH='$loaddatapath'" $inst_work${path_sep}guiconf.txt
-sed -i "/SAVECALPATH =/c\SAVECALPATH ='$loaddatapath'" $inst_work${path_sep}guiconf.txt
+sed -i "" "/SAVECALPATH=/c\\
+SAVECALPATH='$loaddatapath'
+" $inst_work${path_sep}guiconf.txt
+sed -i "" "/SAVECALPATH =/c\\
+SAVECALPATH ='$loaddatapath'
+" $inst_work${path_sep}guiconf.txt
 default_data_path=$loaddatapath
 
 exit 0
