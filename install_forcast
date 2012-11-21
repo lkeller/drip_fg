@@ -21,12 +21,7 @@ usage=$'
     [+1?Failure.]}
   [+SEE ALSO? none]'
 
-# Define separation slash depending on OS (="/" for linux/Unix; "/" for MacOS; not Windows since we are running a shell script)
-if [[ $(uname -o |grep Darwin) ]]; then  
-  path_sep="/"
-else
-  path_sep="/"
-fi
+path_sep="/"
 destination=${!#%$path_sep}
 source=$destination
 

@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
-# Define separation slash depending on OS (="/" for linux/Unix; "\" for MacOS; not Windows since we are running a shell script)
-if [[ $(uname -o |grep Darwin) ]]; then  
-  path_sep="\\"
-else
-  path_sep="/"
-fi
+path_sep="/"
 
 workdir=${!#%$path_sep}
 

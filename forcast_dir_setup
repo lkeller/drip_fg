@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ $(uname -o |grep Darwin) ]]; then  
-  path_sep="/"
-else
-  path_sep="/"
-fi
+path_sep="/"
 
 source=${1%$path_sep}
 destination=${2%$path_sep}
@@ -29,7 +25,7 @@ if [[ "$destination" != "$source" ]]; then
   if [[ -d $source ]]; then 
     # find what directory is the top level of the code
     # and move the source to the $destination
-    tmp=$(mktemp)
+    tmp=$(mktemp -t 'tmp')
     find $source -name 'data' -o -name 'work' | sort >"$tmp"
     rootdir=$(
               comm -12 <(<$tmp sed -n 's!/[^/]*\data$!!p' | sort) \
@@ -66,7 +62,7 @@ if [[ "$destination" != "$source" ]]; then
     
     # find what directory is the top level of the code
     # and move the source to the $destination
-    tmp=$(mktemp)
+    tmp=$(mktemp -t 'tmp')
     find "$destination/tmp" -name 'data' -o -name 'work' | sort >"$tmp"
     rootdir=$(
               comm -12 <(<$tmp sed -n 's!/[^/]*\data$!!p' | sort) \
