@@ -1,4 +1,4 @@
-caldata='/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/data/'
+CALDATA = '/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/data/'
 /'
 es not start with an alphabetic character
 ;         is considered comment and is ignored

@@ -73,6 +73,7 @@ if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
   echo "========"  
   echo "Setting drip pipeline configuration..."
   echo "Modifying dripconf and guiconf files..."
+  echo "Calling: ./config_setup $inst_work${path_sep}drip $inst_data"
   ./config_setup $inst_work${path_sep}drip $inst_data
   if [ $? -ne 0 ]; then 
     echo "Installation failed"
@@ -81,9 +82,9 @@ if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
   
   # Create dripstart.start file
   fstart="dripstart.start"
-  if [[ -f $fstart ]]; then
+  if [[ -f $inst_work${path_sep}$fstart ]]; then
     echo "Removed existing $fstart"
-    rm $fstart
+    rm $inst_work${path_sep}$fstart
   fi
   echo "Creating $fstart..."
   touch $inst_work${path_sep}$fstart
@@ -106,6 +107,7 @@ if [[ -d "$destination${path_sep}work${path_sep}fg" ]]; then
   echo "========"  
   echo "Setting drip pipeline configuration..."
   echo "Modifying dripconf and guiconf files..."
+  echo "Calling: ./config_setup $inst_work${path_sep}fg $inst_data"
   ./config_setup "$inst_work${path_sep}fg" "$inst_data"
   if [ $? -ne 0 ]; then 
     echo "Installation failed"
@@ -114,9 +116,9 @@ if [[ -d "$destination${path_sep}work${path_sep}fg" ]]; then
   
   # Create dripstart.start file
   fstart="fg_start.start"
-  if [[ -f $fstart ]]; then
+  if [[ -f $inst_work${path_sep}$fstart ]]; then
     echo "Removed existing $fstart"
-    rm $fstart
+    rm $inst_work${path_sep}$fstart
   fi
   echo "Creating $fstart..."
   touch $inst_work${path_sep}$fstart

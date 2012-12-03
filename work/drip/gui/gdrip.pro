@@ -143,7 +143,7 @@ end
 ;******************************************************************************
 ;     GUI - Main function
 ;******************************************************************************
-pro gui, xsize=xs, ysize=ys, dataman=dataman_return, _extra=e
+pro gdrip, xsize=xs, ysize=ys, dataman=dataman_return, _extra=e
 
 ; check size keywords
 if not keyword_set(xs) then xs=256
@@ -176,7 +176,9 @@ cd,'.',current=currentdir
 if (size(findfile(currentdir+path_sep()+'guiconf.txt')))[0] eq 1 then begin
     conffilename=currentdir+path_sep()+'guiconf.txt'
 endif else begin
-    conffilename=dialog_pickfile(/must_exist,/read,title='Load GUI Conf File:')
+    conffilename=find_dripconf(/guiconf)
+    if conffilename eq '' then $
+      conffilename=dialog_pickfile(/must_exist,/read,title='Load GUI Conf File:')
 endelse
 ; initialize config_info (save filename in config[0])
 common gui_config_info, guiconf

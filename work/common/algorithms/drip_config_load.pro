@@ -54,6 +54,11 @@ endif else begin
         conffilename=currdir+path_sep()+'dripconf.txt'
     endif else conffilename=''
 endelse
+
+if strlen(conffilename) eq 0 then begin
+  conffilename = find_dripconf()
+endif
+
 ; if no valid file was found, prompt if set
 if strlen(conffilename) eq 0 then begin
     if keyword_set(prompt) then conffilename= $

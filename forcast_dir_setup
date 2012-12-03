@@ -25,7 +25,8 @@ if [[ "$destination" != "$source" ]]; then
   if [[ -d $source ]]; then 
     # find what directory is the top level of the code
     # and move the source to the $destination
-    tmp=$(mktemp -t 'tmp')
+    tmp=$(mktemp -t "tmp.XXXXX")
+    echo $source
     find $source -name 'data' -o -name 'work' | sort >"$tmp"
     rootdir=$(
               comm -12 <(<$tmp sed -n 's!/[^/]*\data$!!p' | sort) \

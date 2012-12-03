@@ -1,5 +1,5 @@
 ; NAME:
-;     C2N - Version .7.0
+;     C2 - Version .7.0
 ;
 ; PURPOSE:
 ;     Data Reduction Pipeline for two position chop two position nod mode
@@ -26,7 +26,7 @@
 ; PROCEDURE:
 ;     run the individual pipeline procedures.
 ;
-; MODIFICATION HISTORY:
+; MODIFICATION HISTORY: (most from C2N__define.pro)
 ;     Written by:  Alfred Lee, Cornell University, 2001
 ;     Modified:   Alfred Lee, Cornell University, April, 2002
 ;                   Changed name to C2NON.  Adjusted drip to run without
@@ -67,71 +67,64 @@
 ;                Changed C2N object into a child object of the new
 ;                DRIP object (lots of code erased)
 ;     Modified:  Marc Berthoud, CU, March 2005
-;                Renamed to C2N               
-;     Modified   Luke Keller, IC, January 2010
-;                Added non-linearity correction
+;                Renamed to C2N
+;     Modified:  Marc Berthoud, CU, May 2006
+;                Used c2n__define.pro to make new mode file c2__define.pro
 ;
 
 ;******************************************************************************
 ;     RUN - Fills SELF structure pointer heap variables with proper values.
 ;******************************************************************************
 
-pro c2n::reduce
+pro c2::reduce
 
 ; clean
-*self.cleaned=drip_clean(*self.data,*self.badmap,*self.header,basehead=*self.basehead)
-writefits,'cleaned.fits',*self.cleaned,*self.header
+*self.cleaned=drip_clean(*self.data,*self.badmap,*self.header, basehead=*self.basehead)
 ; droop
 *self.drooped=drip_droop(*self.cleaned,*self.basehead) 
-writefits,'cleaned_end.fits',*self.cleaned,*self.header
 ; Calculate signal level
 siglev = drip_background(*self.drooped,self.imglinsection,header=*self.basehead)
 ; image non-linerity
 *self.imglinearized=drip_imgnonlin(*self.drooped,*self.basehead) 
 ; nonlin
-*self.linearized=drip_nonlin(*self.imglinearized,*self.lincor)     ;LIN
+*self.linearized=drip_nonlin(*self.drooped,*self.lincor)     ;LIN
 ; flat
 *self.flatted=drip_flat(*self.linearized,*self.masterflat,*self.darksum,basehead=*self.basehead)
 ; stack
-*self.stacked=drip_stack(*self.flatted,*self.header,posdata=*self.posdata, $
-                         chopsub=*self.chopsub, nodsub=*self.nodsub,basehead=*self.basehead)
+*self.stacked=drip_stack(*self.flatted,*self.header, posdata=*self.posdata, $
+                         chopsub=*self.chopsub,basehead=*self.basehead)
 ; Remove third axis from header since we only have one frame after stacking
   sxaddpar, *self.basehead, 'NAXIS', 2
   sxdelpar, *self.basehead, 'NAXIS3'
 ; undistort
 ;*self.undistorted=drip_undistort(*self.stacked,*self.header,*self.basehead)
   *self.undistorted=drip_undistort(*self.stacked,*self.basehead,PINPOS=*self.pinpos)
-; merge
 ; ADDED *self.flatted for IMAGECORELLATION IN MERGE
 *self.merged=drip_merge(*self.undistorted,*self.flatted,*self.header,basehead=*self.basehead)
 ; coadd
 if self.n gt 0 then begin
     *self.coadded=drip_coadd(*self.merged,*self.coadded, $
-                             *self.header, *self.basehead,n=self.n)
+                             *self.header, *self.basehead, n=self.n)
 endif else begin
     *self.coadded=drip_coadd(*self.merged,*self.coadded, $
                              *self.header, *self.basehead, /first)
 endelse
 ; create README
-;o=(mode eq 1) ? 'on' : 'off'
-o=''
-self.readme=['pipeline: 2 Position Chop ' + o + ' chip DRiP', $ ;info lines
+self.readme=['pipeline: 2 Position Chop DRiP', $ ;info lines
   'file: ' + self.filename, $
   'final image: undistorted', $
   'order: CLEAN, NONLIN, FLAT, STACK, UNDISTORT, MERGE, COADD', $
   'notes: badmap from CLEAN, masterflat from FLAT']
 
-print,'C2N ' + o + ' chip FINISHED'   ;info
-
-
+print,'C2 FINISHED' ;info
 end
 
 ;******************************************************************************
-;     C2N__DEFINE - Define the C2N class structure.
+;     C2__DEFINE - Define the C2N class structure.
 ;******************************************************************************
 
-pro c2n__define  ;structure definition
+pro c2__define  ;structure definition
 
-struct={c2n, $
+struct={c2, $
       inherits drip} ; child object of drip object
 end

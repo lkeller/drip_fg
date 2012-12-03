@@ -227,10 +227,11 @@ END
 
 pro drip_pipeman::test, event
   
-  a = self.dataman
-  help,a.daps(4)
-  help,*a.daps(0)
-  help,*a.daps(3)
+  d = self.drip
+  help,d
+  cleaned = d.cleaned
+  help,*cleaned
+  atv,(*cleaned)[*,*,0]
   
 end
 
@@ -337,6 +338,7 @@ if (filelist[0] ne '') then begin
     endelse
 endif
 end
+
 
 ;******************************************************************************
 ;     OPENGROUP - pick directory and organize groups for reduction
@@ -2414,10 +2416,10 @@ PRO drip_pipeman::maximize, event
 	event_pro='drip_eventhand', $
 	uvalue={object:self, method:'removeopen'}, /sensitive, $
 	font=mediumfont, ysize=25)
-;test=widget_button(filespan, value='Test', $
-;      event_pro='drip_eventhand', $
-;      uvalue={object:self, method:'test'}, /sensitive, $
-;      font=mediumfont, ysize=25)
+  test=widget_button(filespan, value='Test', $
+	event_pro='drip_eventhand', $
+	uvalue={object:self, method:'test'}, /sensitive, $
+	font=mediumfont, ysize=25)
   redbutpan = widget_base(pipepan,/column)
   reduce=widget_button(redbutpan, value='Reduce', event_pro='drip_eventhand', $
 	uvalue={object:self, method:'run'}, /sensitive, $
@@ -2552,10 +2554,10 @@ cancelopen=widget_button(filesbutpan, value='Remove', $
       event_pro='drip_eventhand', $
       uvalue={object:self, method:'removeopen'}, /sensitive, $
       font=mediumfont, ysize=25)
-;test=widget_button(filespan, value='Test', $
-;      event_pro='drip_eventhand', $
-;      uvalue={object:self, method:'test'}, /sensitive, $
-;      font=mediumfont, ysize=25)
+test=widget_button(filespan, value='Test', $
+      event_pro='drip_eventhand', $
+      uvalue={object:self, method:'test'}, /sensitive, $
+      font=mediumfont, ysize=25)
 redbutpan = widget_base(pipepan,/column)
 reduce=widget_button(redbutpan, value='Reduce', event_pro='drip_eventhand', $
       uvalue={object:self, method:'run'}, /sensitive, $

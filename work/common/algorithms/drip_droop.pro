@@ -34,6 +34,7 @@ FUNCTION drip_droop, darr, basehead, FRAC=frac
     if frac_read eq 'x' then frac = 0.0035 $
     else frac=float(frac_read)
   endif
+  drip_message, 'INFO: Frac droop is '+strtrim(frac,2)
   
   minval_read = drip_getpar(basehead,'MINDROOP')
   if minval_read eq 'x' then begin
@@ -60,6 +61,7 @@ FUNCTION drip_droop, darr, basehead, FRAC=frac
   endelse
 
   sz = size(darr)
+  resarr = darr
   dim = sz(0)
   nx  = sz(1)
   ny  = sz(2)
@@ -84,13 +86,13 @@ FUNCTION drip_droop, darr, basehead, FRAC=frac
           endfor
       endfor
 
-      if (dim gt 2) then darr[*,*,l] = data else darr = data
+      if (dim gt 2) then resarr[*,*,l] = data else resarr = data
 
   endfor
 
   sxaddpar, basehead, 'HISTORY', 'Applied channel suppression (droop) correction'
   sxaddpar, basehead, 'HISTORY', 'Channel suppression correction factor '+strtrim(string(frac), 2) 
 
-  return, darr
+  return, resarr
 
 END 

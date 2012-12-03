@@ -156,7 +156,9 @@ PRO objgroup::fill, skipfilesummary=skipfilesummary
   objgroup_save={filesummary:*self.filesummary, $
 		 filters:*self.filters, $
 		 criteria:*self.criteria}
-  save,objgroup_save,filename=self.path+'objgroup.sav'
+  if file_test(self.path,/directory,/write) then begin
+    save,objgroup_save,filename=self.path+'objgroup.sav'
+  endif
   
 END
 
