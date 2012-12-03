@@ -43,7 +43,7 @@ common drip_config_info, dripconf
 
 map=map
 
-readcol, 'DEMO_GRISM_DATA_v2.3/Cal/wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
+readcol, '../../data/wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
 
 orderslist=orders
 
