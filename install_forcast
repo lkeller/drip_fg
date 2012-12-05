@@ -80,8 +80,8 @@ if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
     exit 1
   fi
   
-  # Create dripstart.start file
-  fstart="dripstart.start"
+  # Create drip_startup file
+  fstart="drip_startup"
   if [[ -f $inst_work${path_sep}$fstart ]]; then
     echo "Removed existing $fstart"
     rm $inst_work${path_sep}$fstart
@@ -93,10 +93,10 @@ if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
   echo "device, retain=2" >> $inst_work${path_sep}$fstart
   echo "" >> $inst_work${path_sep}$fstart
   #echo "!PATH= '+$inst_work${path_sep}drip${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}'" >> $inst_work${path_sep}$fstart
-  echo "!PATH= '+$inst_work${path_sep}drip${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}:+' +!dir" >> $inst_work${path_sep}$fstart
+  echo "!PATH= '+$inst_work${path_sep}drip${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}:+' +!PATH + ':+' +!dir" >> $inst_work${path_sep}$fstart
   echo "!PATH=EXPAND_PATH(!PATH,/all_dirs)" >> $inst_work${path_sep}$fstart
   #echo "!PATH=!PATH+': +' +!dir" >> $inst_work${path_sep}$fstart
-  echo "cd,'$inst_work${path_sep}drip'" >> $inst_work${path_sep}$fstart
+  #echo "cd,'$inst_work${path_sep}drip'" >> $inst_work${path_sep}$fstart
   
   
 fi
@@ -114,8 +114,8 @@ if [[ -d "$destination${path_sep}work${path_sep}fg" ]]; then
     exit 1
   fi
   
-  # Create dripstart.start file
-  fstart="fg_start.start"
+  # Create fg_startup file
+  fstart="fg_startup"
   if [[ -f $inst_work${path_sep}$fstart ]]; then
     echo "Removed existing $fstart"
     rm $inst_work${path_sep}$fstart
@@ -130,29 +130,92 @@ if [[ -d "$destination${path_sep}work${path_sep}fg" ]]; then
   echo "!PATH= '+$inst_work${path_sep}fg${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}:+' +!dir" >> $inst_work${path_sep}$fstart
   echo "!PATH=EXPAND_PATH(!PATH,/all_dirs)" >> $inst_work${path_sep}$fstart
   #echo "!PATH=!PATH+':' +!dir" >> $inst_work${path_sep}$fstart
-  echo "cd,'$inst_work${path_sep}fg'" >> $inst_work${path_sep}$fstart
+  #echo "cd,'$inst_work${path_sep}fg'" >> $inst_work${path_sep}$fstart
 fi
 
+######################################################################
+# Create other useful files including
+#     - Wrapper to run the pipeline with dcs
+#     = An executable to run drip, fg, gdrip and gfg in mode bash
+######################################################################
 
 # Now we are going to create an executable (shell wrapper) as a shorcut for running drip
 if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
   dripdir=$(cd $destination${path_sep}work${path_sep}drip${path_sep} && pwd)
-  dripexec="$dripdir${path_sep}drip"
+  
+  dripexec="$dripdir${path_sep}drip_gui"
   if [[ -f $dripexec ]]; then rm $dripexec; fi
   touch $dripexec
-  echo "#!/usr/bin/env bash" >> $dripexec
-  echo "(" >> $dripexec
-  echo " echo \"@$dripdir${path_sep}dripstart.start\"" >> $dripexec
-  echo " echo \"gui\"" >> $dripexec
-  #echo " echo \"input=''\""  >> $dripexec
-  #echo " echo \"while (input ne 'q') do begin\""  >> $dripexec
-  #echo " echo \"read, "Press q to quit: ", input\""  >> $dripexec
-  #echo " echo \"endwhile\""  >> $dripexec
-  echo ")|idl" >> $dripexec
+  echo "gdrip" >> $dripexec
+  
+  
+  dripexec="$dripdir${path_sep}gdrip"
+  if [[ -f $dripexec ]]; then rm $dripexec; fi
+  touch $dripexec
+  echo "#!/usr/bin/env bash" >> $dripexec  
+  echo "" >> $dripexec 
+  echo "  while getopts rpcdu option" >> $dripexec 
+  echo "do" >> $dripexec 
+  echo "  case \"\${option}\"" >> $dripexec 
+  echo "  in" >> $dripexec 
+  echo "    r) rflag=1;;" >> $dripexec 
+  echo "    p) pflag=1;;" >> $dripexec 
+  echo "    c) cflag=1;;" >> $dripexec 
+  echo "    d) dflag=1;;" >> $dripexec 
+  echo "    u) uflag=1;;" >> $dripexec 
+  echo "  esac" >> $dripexec 
+  echo "done" >> $dripexec 
+  echo "" >> $dripexec 
+  echo "if [ ! -z \"\$dflag\" ]; then" >> $dripexec 
+  echo "  dripconf=/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt" >> $dripexec 
+  echo "  guiconf=/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/guiconf.txt" >> $dripexec 
+  echo "else" >> $dripexec 
+  echo "  if [ ! -z \"\$uflag\" ]; then " >> $dripexec 
+  echo "    dripconf=\"/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconfmcharcos.txt\"" >> $dripexec 
+  echo "    guiconf=\"/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/guiconfmcharcos.txt\"" >> $dripexec 
+  echo "  else" >> $dripexec 
+  echo "    dripconf=\"/tmp/dripconf6744.txt\"" >> $dripexec 
+  echo "    guiconf=\"/tmp/guiconf6744.txt\"" >> $dripexec 
+  echo "    tempconf='y'" >> $dripexec 
+  echo "  fi" >> $dripexec 
+  echo "  if ! [[ -f \$dripconf ]]; then " >> $dripexec 
+  echo "    cp /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt \$dripconf" >> $dripexec 
+  echo "  fi" >> $dripexec 
+  echo "  if ! [[ -f \$guiconf ]]; then " >> $dripexec 
+  echo "    cp /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/guiconf.txt \$guiconf" >> $dripexec 
+  echo "  fi" >> $dripexec 
+  echo "fi" >> $dripexec 
+  echo "" >> $dripexec
+  echo "export DRIPCONF_CURRENT=\$dripconf" >> $dripexec 
+  echo "export GUICONF_CURRENT=\$guiconf" >> $dripexec 
+  echo "echo \"Dripconf file is \$dripconf\"" >> $dripexec 
+  echo "echo \"Guiconf file is \$guiconf\"" >> $dripexec 
+  echo "" >> $dripexec 
+  echo "if [ ! -z \"\$rflag\" ]; then" >> $dripexec
+  echo "  echo \"Updating LOADDATAPATH...\"" >> $dripexec
+  echo "  perl -pi -e \"s|.*loaddatapath\s*=.*|LOADDATAPATH='\$(pwd)'|i\" \$guiconf" >> $dripexec
+  echo "fi" >> $dripexec
+  echo "if [ ! -z \"\$pflag\" ]; then" >> $dripexec
+  echo "  echo \"Updating SAVEPATH...\"" >> $dripexec
+  echo "  perl -pi -e \"s|.*savepath\s*=.*|SAVEPATH='\$(pwd)'|i\" \$guiconf" >> $dripexec
+  echo "fi" >> $dripexec
+  echo "if [ ! -z \"\$cflag\" ]; then" >> $dripexec
+  echo "  echo \"Updating SAVECALPATH...\"" >> $dripexec
+  echo "  perl -pi -e \"s|.*savecalpath\s*=.*|SAVECALPATH='\$(pwd)'|i\" \$guiconf" >> $dripexec
+  echo "fi" >> $dripexec 
+  echo "" >> $dripexec 
+  echo "export IDL_STARTUP=$inst_work${path_sep}drip_startup" >> $dripexec  
+  echo "idl $dripdir${path_sep}drip_gui" >> $dripexec 
+  echo "" >> $dripexec
+  echo "if [ \"\$tempconf\" == 'y' ]; then" >> $dripexec
+  echo "  echo \"Removing temporary files: \$dripconf and \$guiconf\"" >> $dripexec
+  echo "  rm \$dripconf" >> $dripexec
+  echo "  rm \$guiconf" >> $dripexec
+  echo "fi" >> $dripexec
   chmod u+x $dripexec
 
   echo "Add this line to your .bashrc file:"
-  echo "    alias $pipeline=$dripdir${path_sep}drip"
+  echo "    alias gdrip=$dripdir${path_sep}gdrip"
   echo "You will be able to run drip from any directory"
 fi
 
@@ -174,8 +237,55 @@ if [[ -d "$destination${path_sep}work${path_sep}fg" ]]; then
   chmod u+x $dripexec
 
   echo "Add this line to your .bashrc file:"
-  echo "    alias $pipeline=$dripdir${path_sep}drip"
+  echo "    alias gfg=$dripdir${path_sep}gfg"
   echo "You will be able to run fg from any directory"
+fi
+
+# Create wrapper for drip in dcs
+if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
+  dripdir=$(cd $destination${path_sep}work${path_sep}drip${path_sep} && pwd)
+  dripexec="$dripdir${path_sep}drip_auto"
+  if [[ -f $dripexec ]]; then rm $dripexec; fi
+  touch $dripexec
+  echo "#!/usr/bin/env bash" >> $dripexec
+  echo "" >> $dripexec
+  
+  echo "if [[ -n \$DRIP_CORMERGE ]]; then" >> $dripexec
+  echo "  echo \"Modifying CORMERGE...\"" >> $dripexec
+  echo "  perl -pi -e \"s|^\s*cormerge\s*=.*|CORMERGE='\$DRIP_CORMERGE'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
+  echo "else" >> $dripexec
+  echo "  echo \"DRIP_CORMERGE is not set \"" >> $dripexec
+  echo "fi;" >> $dripexec
+  
+  echo "if [[ -n \$DRIP_CORCOADD ]]; then" >> $dripexec
+  echo "  echo \"Modifying CORCOADD...\"" >> $dripexec
+  echo "  perl -pi -e \"s|^\s*corcoadd\s*=.*|CORCOADD='\$DRIP_CORCOADD'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
+  echo "else" >> $dripexec
+  echo "  echo \"DRIP_CORCOADD is not set \"" >> $dripexec
+  echo "fi;" >> $dripexec
+  
+  echo "if [[ -n \$DRIP_JBCLEAN ]]; then" >> $dripexec
+  echo "  echo \"Modifying JBCLEAN...\"" >> $dripexec
+  echo "  perl -pi -e \"s|^\s*jbclean\s*=.*|JBCLEAN='\$DRIP_JBCLEAN'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
+  echo "else" >> $dripexec
+  echo "  echo \"DRIP_JBCLEAN is not set \"" >> $dripexec
+  echo "fi;" >> $dripexec
+  
+  echo "if [[ -n \$DRIP_NLINSIZE ]]; then" >> $dripexec
+  echo "  echo \"Modifying NLINSIZE...\"" >> $dripexec
+  echo "  perl -pi -e \"s|^\s*nlinsize\s*=.*|NLINSIZE='\$DRIP_NLINSIZE'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
+  echo "else" >> $dripexec
+  echo "  echo \"DRIP_NLINSIZE is not set \"" >> $dripexec
+  echo "fi;" >> $dripexec
+  echo "" >> $dripexec
+  
+  echo "Starting DRIP..."
+  echo "" >> $dripexec
+  echo "(" >> $dripexec
+  echo "echo \"drip_pipe, 'inputset.lst',outDMfile='outputset.lst',outlist=['merged','coadded','undistorted']\"" >> $dripexec
+  echo ")|idl" >> $dripexec
+  chmod u+x $dripexec
+
 fi
 
 exit 0

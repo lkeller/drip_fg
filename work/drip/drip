@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-(
- echo "@/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripstart.start"
- echo "gui"
-)|idl

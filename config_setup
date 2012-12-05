@@ -15,12 +15,12 @@ echo "Data directory: $inst_data"
 # Substitute all the lines in dripconf.txt to match the current path
 # installation
 echo "Modifying CALDATA in dripconf.txt..."
-perl -pi -e "s|.*caldata\s*=.*|CALDATA = '$inst_data${path_sep}'|i" $inst_work${path_sep}dripconf.txt
+perl -pi -e "s|.*caldata\s*=.*|CALDATA='$inst_data${path_sep}'|i" $inst_work${path_sep}dripconf.txt
 
 # Substitute all the lines in guiconf.txt to match the current path
 # installation
 echo "Modifying AUTO_LISTFILE in guiconf.txt..."
-perl -pi -e "s|.*auto_listfile\s*=.*|AUTO_LISTFILE = '$inst_work${path_sep}autopipetest.log'|i" $inst_work${path_sep}guiconf.txt
+perl -pi -e "s|.*auto_listfile\s*=.*|AUTO_LISTFILE='$inst_work${path_sep}autopipetest.log'|i" $inst_work${path_sep}guiconf.txt
 echo "Modifying LOGFILE in guiconf.txt..."
 perl -pi -e "s|.*logfile\s*=.*|LOGFILE = '$inst_work${path_sep}driplog.log'|i" $inst_work${path_sep}guiconf.txt
 
@@ -50,7 +50,7 @@ if [[ "${loaddatapath#${loaddatapath%?}}" != "${path_sep}" ]]; then
 fi
 echo "Modifying LOADDATAPATH in guiconf.txt..."
 echo "        Input loaddatapath is $loaddatapath" 
-perl -pi -e "s|.*loaddatapath\s*=.*|LOADDATAPATH = '$loaddatapath'|i" $inst_work${path_sep}guiconf.txt
+perl -pi -e "s|.*loaddatapath\s*=.*|LOADDATAPATH='$loaddatapath'|i" $inst_work${path_sep}guiconf.txt
 default_data_path=$loaddatapath
 
 # Modify SAVEPATH in guiconf.txt
@@ -76,7 +76,7 @@ if [[ "${loaddatapath#${loaddatapath%?}}" != "${path_sep}" ]]; then
 fi
 echo "Modifying SAVEPATH in guiconf.txt..."
 echo "        Input savepath is $loaddatapath" 
-perl -pi -e "s|.*savepath\s*=.*|SAVEPATH = '$loaddatapath'|i" $inst_work${path_sep}guiconf.txt
+perl -pi -e "s|.*savepath\s*=.*|SAVEPATH='$loaddatapath'|i" $inst_work${path_sep}guiconf.txt
 default_data_path=$loaddatapath
 
 # Modify SAVECALPATH in guiconf.txt
@@ -102,7 +102,7 @@ if [[ "${loaddatapath#${loaddatapath%?}}" != "${path_sep}" ]]; then
 fi
 echo "Modifying SAVECALPATH in guiconf.txt..."
 echo "        Input savecalpath is $loaddatapath" 
-perl -pi -e "s|.*savecalpath\s*=.*|SAVECALPATH = '$loaddatapath'|i" $inst_work${path_sep}guiconf.txt
+perl -pi -e "s|.*savecalpath\s*=.*|SAVECALPATH='$loaddatapath'|i" $inst_work${path_sep}guiconf.txt
 default_data_path=$loaddatapath
 
 exit 0

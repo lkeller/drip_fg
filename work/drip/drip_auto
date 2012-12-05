@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+if [[ -n $DRIP_CORMERGE ]]; then
+  echo "Modifying CORMERGE..."
+  perl -pi -e "s|^\s*cormerge\s*=.*|CORMERGE='$DRIP_CORMERGE'|i" /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt
+else
+  echo "DRIP_CORMERGE is not set "
+fi;
+if [[ -n $DRIP_CORCOADD ]]; then
+  echo "Modifying CORCOADD..."
+  perl -pi -e "s|^\s*corcoadd\s*=.*|CORCOADD='$DRIP_CORCOADD'|i" /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt
+else
+  echo "DRIP_CORCOADD is not set "
+fi;
+if [[ -n $DRIP_JBCLEAN ]]; then
+  echo "Modifying JBCLEAN..."
+  perl -pi -e "s|^\s*jbclean\s*=.*|JBCLEAN='$DRIP_JBCLEAN'|i" /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt
+else
+  echo "DRIP_JBCLEAN is not set "
+fi;
+if [[ -n $DRIP_NLINSIZE ]]; then
+  echo "Modifying NLINSIZE..."
+  perl -pi -e "s|^\s*nlinsize\s*=.*|NLINSIZE='$DRIP_NLINSIZE'|i" /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt
+else
+  echo "DRIP_NLINSIZE is not set "
+fi;
+
+
+(
+echo "drip_pipe, 'inputset.lst',outDMfile='outputset.lst',outlist=['merged','coadded','undistorted']"
+)|idl

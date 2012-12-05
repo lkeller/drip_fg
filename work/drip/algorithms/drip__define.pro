@@ -1918,8 +1918,17 @@ fits_read, file, null, *self.basehead, /header
 
 ; get working directory and store path for calibration
 workpath = drip_getpar(*self.basehead,'CALDATA')
-if workpath eq 'x' then self.pathcal=self.pathload+"../data/" $
-else self.pathcal=workpath    ;+"../data/"
+if workpath eq 'x' then begin
+  self.pathcal=self.pathload+"../../data/" $
+endif else begin
+  self.pathcal=workpath    ;+"../data/"
+endelse
+
+if file_test(self.pathcal, /directory) eq 0 then begin
+  drip_message,'drip::init - calibration path ('+self.pathcal+') does not exist'
+  return, 0
+endif
+
 ; get mode
 self.mode=drip_getpar(*self.basehead,'INSTMODE',/vital)
 if self.mode eq 'C2' then begin

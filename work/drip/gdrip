@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+  while getopts rpcdu option
+do
+  case "${option}"
+  in
+    r) rflag=1;;
+    p) pflag=1;;
+    c) cflag=1;;
+    d) dflag=1;;
+    u) uflag=1;;
+  esac
+done
+
+if [ ! -z "$dflag" ]; then
+  dripconf=/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt
+  guiconf=/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/guiconf.txt
+else
+  if [ ! -z "$uflag" ]; then 
+    dripconf="/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconfmcharcos.txt"
+    guiconf="/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/guiconfmcharcos.txt"
+  else
+    dripconf="/tmp/dripconf6744.txt"
+    guiconf="/tmp/guiconf6744.txt"
+    tempconf='y'
+  fi
+  if ! [[ -f $dripconf ]]; then 
+    cp /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt $dripconf
+  fi
+  if ! [[ -f $guiconf ]]; then 
+    cp /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/guiconf.txt $guiconf
+  fi
+fi
+
+export DRIPCONF_CURRENT=$dripconf
+export GUICONF_CURRENT=$guiconf
+echo "Dripconf file is $dripconf"
+echo "Guiconf file is $guiconf"
+
+if [ ! -z "$rflag" ]; then
+  echo "Updating LOADDATAPATH..."
+  perl -pi -e "s|.*loaddatapath\s*=.*|LOADDATAPATH='$(pwd)'|i" $guiconf
+fi
+if [ ! -z "$pflag" ]; then
+  echo "Updating SAVEPATH..."
+  perl -pi -e "s|.*savepath\s*=.*|SAVEPATH='$(pwd)'|i" $guiconf
+fi
+if [ ! -z "$cflag" ]; then
+  echo "Updating SAVECALPATH..."
+  perl -pi -e "s|.*savecalpath\s*=.*|SAVECALPATH='$(pwd)'|i" $guiconf
+fi
+
+export IDL_STARTUP=/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip_startup
+#idl /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/drip_gui
+
+if [ "$tempconf" == 'y' ]; then
+  echo "Removing temporary files: $dripconf and $guiconf"
+  rm $dripconf
+  rm $guiconf
+fi

@@ -170,16 +170,28 @@ ENDCASE
 common drip_config_info, dripconf, drip_errproc
 drip_config_load,/prompt
 
-;** load gui configuration file
-; search for gui configuration file -> conffilename
-cd,'.',current=currentdir
-if (size(findfile(currentdir+path_sep()+'guiconf.txt')))[0] eq 1 then begin
-    conffilename=currentdir+path_sep()+'guiconf.txt'
-endif else begin
-    conffilename=find_dripconf(/guiconf)
-    if conffilename eq '' then $
-      conffilename=dialog_pickfile(/must_exist,/read,title='Load GUI Conf File:')
-endelse
+
+conffilename = getenv('GUICONF_CURRENT')
+if file_test(conffilename) eq 0 then begin
+  print,'File does not exist: '+conffilename
+  conffilename = ''
+endif
+
+if (conffilename eq '') then begin
+  ;** load gui configuration file
+  ; search for gui configuration file -> conffilename
+  cd,'.',current=currentdir
+  if (size(findfile(currentdir+path_sep()+'guiconf.txt')))[0] eq 1 then begin
+      conffilename=currentdir+path_sep()+'guiconf.txt'
+  endif else begin
+      conffilename=find_dripconf(/guiconf)
+      if conffilename eq '' then $
+	conffilename=dialog_pickfile(/must_exist,/read,title='Load GUI Conf File:')
+  endelse
+endif 
+
+print,'guiconf='+conffilename
+
 ; initialize config_info (save filename in config[0])
 common gui_config_info, guiconf
 guiconf=[conffilename]

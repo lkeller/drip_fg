@@ -69,7 +69,7 @@ case mode of
     'C2': begin
           if (uint(sxpar(header, 'C2NC2')) eq 1) then begin
               pipe=obj_new('c2nc2',filelist)
-              drip_message,'          but flagged as C2NC2
+              drip_message,'          but flagged as C2NC2'
           endif else begin
               pipe=obj_new('c2',filelist)
           endelse

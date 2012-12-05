@@ -1,0 +1,6 @@
+device, true_color=24
+device, decomposed=0
+device, retain=2
+
+!PATH= '+/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/:+/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/common/:+/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/libs/:+' +!PATH + ':+' +!dir
+!PATH=EXPAND_PATH(!PATH,/all_dirs)

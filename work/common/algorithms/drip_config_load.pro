@@ -32,32 +32,40 @@
 ;     DRIP_CONFIG_LOAD - load it
 ;****************************************************************************
 pro drip_config_load, conffilename=conffilename, prompt=prompt
-; search for drip configuration file -> conffilename
-cd,'.',current=currdir
-if keyword_set(conffilename) then begin
-    cfnsize=size(conffilename)
-    if total(size(conffilename) eq [0,7,1]) lt 3 then begin
-        conffilename=''
-    endif else if (size(findfile(conffilename)))[0] eq 1 then begin
-        ; conffilename is valid
-    endif else if (size(findfile(currdir+path_sep()+conffilename)))[0] eq 1 $
-      then begin
-        ; conffilename requires current path
-        conffilename=currdir+path_sep()+conffilename
-    endif else begin
-        ; did not find valid conffilename -> setting to ''
-        conffilename=''
-    endelse
-endif else begin
-    if (size(findfile(currdir+path_sep()+'dripconf.txt')))[0] eq 1 then begin
-        ; valie dripconf.txt was found in current folder
-        conffilename=currdir+path_sep()+'dripconf.txt'
-    endif else conffilename=''
-endelse
 
-if strlen(conffilename) eq 0 then begin
-  conffilename = find_dripconf()
-endif
+
+conffilename = getenv('DRIPCONF_CURRENT')
+
+if (conffilename eq '') then begin
+  ; search for drip configuration file -> conffilename
+  cd,'.',current=currdir
+  if keyword_set(conffilename) then begin
+      cfnsize=size(conffilename)
+      if total(size(conffilename) eq [0,7,1]) lt 3 then begin
+          conffilename=''
+      endif else if (size(findfile(conffilename)))[0] eq 1 then begin
+          ; conffilename is valid
+      endif else if (size(findfile(currdir+path_sep()+conffilename)))[0] eq 1 $
+	then begin
+          ; conffilename requires current path
+          conffilename=currdir+path_sep()+conffilename
+      endif else begin
+          ; did not find valid conffilename -> setting to ''
+          conffilename=''
+      endelse
+  endif else begin
+      if (size(findfile(currdir+path_sep()+'dripconf.txt')))[0] eq 1 then begin
+          ; valie dripconf.txt was found in current folder
+          conffilename=currdir+path_sep()+'dripconf.txt'
+      endif else conffilename=''
+  endelse
+
+  if strlen(conffilename) eq 0 then begin
+    conffilename = find_dripconf()
+  endif  
+endif else begin
+  if file_test(conffilename) eq 0 then conffilename = ''
+endelse
 
 ; if no valid file was found, prompt if set
 if strlen(conffilename) eq 0 then begin
