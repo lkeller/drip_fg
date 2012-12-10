@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-  while getopts rpcdu option
+  while getopts rpcdua option
 do
   case "${option}"
   in
@@ -9,6 +9,7 @@ do
     c) cflag=1;;
     d) dflag=1;;
     u) uflag=1;;
+    a) aflag=1;;
   esac
 done
 
@@ -17,8 +18,8 @@ if [ ! -z "$dflag" ]; then
   guiconf=/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/guiconf.txt
 else
   if [ ! -z "$uflag" ]; then 
-    dripconf="/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconfmcharcos.txt"
-    guiconf="/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/guiconfmcharcos.txt"
+    dripconf="/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/conffiles/dripconf${USER}.txt"
+    guiconf="/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/conffiles/guiconf${USER}.txt"
   else
     dripconf="/tmp/dripconf6744.txt"
     guiconf="/tmp/guiconf6744.txt"
@@ -39,19 +40,54 @@ echo "Guiconf file is $guiconf"
 
 if [ ! -z "$rflag" ]; then
   echo "Updating LOADDATAPATH..."
-  perl -pi -e "s|.*loaddatapath\s*=.*|LOADDATAPATH='$(pwd)'|i" $guiconf
+  perl -pi -e "s|.*loaddatapath\s*=.*|LOADDATAPATH='$(pwd)/'|i" $guiconf
 fi
 if [ ! -z "$pflag" ]; then
   echo "Updating SAVEPATH..."
-  perl -pi -e "s|.*savepath\s*=.*|SAVEPATH='$(pwd)'|i" $guiconf
+  perl -pi -e "s|.*savepath\s*=.*|SAVEPATH='$(pwd)/'|i" $guiconf
 fi
 if [ ! -z "$cflag" ]; then
   echo "Updating SAVECALPATH..."
-  perl -pi -e "s|.*savecalpath\s*=.*|SAVECALPATH='$(pwd)'|i" $guiconf
+  perl -pi -e "s|.*savecalpath\s*=.*|SAVECALPATH='$(pwd)/'|i" $guiconf
+fi
+
+if [ ! -z "$aflag" ]; then
+  if [[ -n $DRIP_CORMERGE ]]; then
+    echo "Modifying CORMERGE..."
+    perl -pi -e "s|^\s*cormerge\s*=.*|CORMERGE='$DRIP_CORMERGE'|i" $dripconf
+  else
+    echo "DRIP_CORMERGE is not set "
+  fi;
+  if [[ -n $DRIP_CORCOADD ]]; then
+    echo "Modifying CORCOADD..."
+    perl -pi -e "s|^\s*corcoadd\s*=.*|CORCOADD='$DRIP_CORCOADD'|i" $dripconf
+  else
+    echo "DRIP_CORCOADD is not set "
+  fi;
+  if [[ -n $DRIP_JBCLEAN ]]; then
+    echo "Modifying JBCLEAN..."
+    perl -pi -e "s|^\s*jbclean\s*=.*|JBCLEAN='$DRIP_JBCLEAN'|i" $dripconf
+  else
+    echo "DRIP_JBCLEAN is not set "
+  fi;
+  if [[ -n $DRIP_NLINSIZE ]]; then
+    echo "Modifying NLINSIZE..."
+    perl -pi -e "s|^\s*nlinsize\s*=.*|NLINSIZE='$DRIP_NLINSIZE'|i" $dripconf
+  else
+    echo "DRIP_NLINSIZE is not set "
+  fi;
+
 fi
 
 export IDL_STARTUP=/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip_startup
-#idl /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/drip_gui
+Starting DRIP...
+if [ ! -z "$aflag" ]; then
+  (
+  echo "drip_pipe, 'inputset.lst',outDMfile='outputset.lst',outlist=['merged','coadded','undistorted']"
+  )|idl
+else
+  idl /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/drip_gui
+fi
 
 if [ "$tempconf" == 'y' ]; then
   echo "Removing temporary files: $dripconf and $guiconf"

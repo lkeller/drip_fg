@@ -1919,7 +1919,7 @@ fits_read, file, null, *self.basehead, /header
 ; get working directory and store path for calibration
 workpath = drip_getpar(*self.basehead,'CALDATA')
 if workpath eq 'x' then begin
-  self.pathcal=self.pathload+"../../data/" $
+  self.pathcal=self.pathload+"../../data/" 
 endif else begin
   self.pathcal=workpath    ;+"../data/"
 endelse

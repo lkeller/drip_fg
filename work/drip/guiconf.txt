@@ -1,7 +1,7 @@
 GREETING = 'FORCAST Data Reduction'
-LOADDATAPATH='/home/mcharcos/ext_disk/BS_Level1/shortlist'
-SAVEPATH='/home/mcharcos/ext_disk/BS_Level1/shortlist'
-SAVECALPATH='/home/mcharcos/ext_disk/BS_Level1/shortlist'
+LOADDATAPATH='/home/mcharcos/'
+SAVEPATH='/home/mcharcos/'
+SAVECALPATH='/home/mcharcos/'
 ALLGROUPPUSH=1
 QLASUM = 0
 QLASTEP = 1

@@ -25,6 +25,7 @@ else
   echo "DRIP_NLINSIZE is not set "
 fi;
 
+Starting DRIP...
 
 (
 echo "drip_pipe, 'inputset.lst',outDMfile='outputset.lst',outlist=['merged','coadded','undistorted']"

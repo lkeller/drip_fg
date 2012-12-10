@@ -235,7 +235,7 @@ SEARCH: 			    ;Threshold dependent search begins here
   print,format='(/8x,a)','     STAR      X      Y     FLUX     SHARP    ROUND'
 
 ;  Loop over star positions; compute statistics
-
+if ngood gt 1000 then goto, FINISH
  for i = 0L,ngood-1 do begin
      temp = float(image[ix[i]-nhalf:ix[i]+nhalf,iy[i]-nhalf:iy[i]+nhalf])
      d = h[ix[i],iy[i]]                  ;"d" is actual pixel intensity

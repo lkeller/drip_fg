@@ -80,10 +80,8 @@ pro c2n::reduce
 
 ; clean
 *self.cleaned=drip_clean(*self.data,*self.badmap,*self.header,basehead=*self.basehead)
-writefits,'cleaned.fits',*self.cleaned,*self.header
 ; droop
 *self.drooped=drip_droop(*self.cleaned,*self.basehead) 
-writefits,'cleaned_end.fits',*self.cleaned,*self.header
 ; Calculate signal level
 siglev = drip_background(*self.drooped,self.imglinsection,header=*self.basehead)
 ; image non-linerity
