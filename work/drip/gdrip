@@ -21,8 +21,8 @@ else
     dripconf="/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/conffiles/dripconf${USER}.txt"
     guiconf="/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/conffiles/guiconf${USER}.txt"
   else
-    dripconf="/tmp/dripconf6744.txt"
-    guiconf="/tmp/guiconf6744.txt"
+    dripconf="/tmp/$(basename dripconf)$$$$.txt"
+    guiconf="/tmp/$(basename guiconf)$$$$.txt"
     tempconf='y'
   fi
   if ! [[ -f $dripconf ]]; then 
@@ -52,27 +52,27 @@ if [ ! -z "$cflag" ]; then
 fi
 
 if [ ! -z "$aflag" ]; then
-  if [[ -n $DRIP_CORMERGE ]]; then
+  if [[ -n $DPS_DRIP_CORMERGE ]]; then
     echo "Modifying CORMERGE..."
-    perl -pi -e "s|^\s*cormerge\s*=.*|CORMERGE='$DRIP_CORMERGE'|i" $dripconf
+    perl -pi -e "s|^\s*cormerge\s*=.*|CORMERGE='$DPS_DRIP_CORMERGE'|i" $dripconf
   else
     echo "DRIP_CORMERGE is not set "
   fi;
-  if [[ -n $DRIP_CORCOADD ]]; then
+  if [[ -n $DPS_DRIP_CORCOADD ]]; then
     echo "Modifying CORCOADD..."
-    perl -pi -e "s|^\s*corcoadd\s*=.*|CORCOADD='$DRIP_CORCOADD'|i" $dripconf
+    perl -pi -e "s|^\s*corcoadd\s*=.*|CORCOADD='$DPS_DRIP_CORCOADD'|i" $dripconf
   else
     echo "DRIP_CORCOADD is not set "
   fi;
-  if [[ -n $DRIP_JBCLEAN ]]; then
+  if [[ -n $DPS_DRIP_JBCLEAN ]]; then
     echo "Modifying JBCLEAN..."
-    perl -pi -e "s|^\s*jbclean\s*=.*|JBCLEAN='$DRIP_JBCLEAN'|i" $dripconf
+    perl -pi -e "s|^\s*jbclean\s*=.*|JBCLEAN='$DPS_DRIP_JBCLEAN'|i" $dripconf
   else
     echo "DRIP_JBCLEAN is not set "
   fi;
-  if [[ -n $DRIP_NLINSIZE ]]; then
+  if [[ -n $DPS_DRIP_NLINSIZE ]]; then
     echo "Modifying NLINSIZE..."
-    perl -pi -e "s|^\s*nlinsize\s*=.*|NLINSIZE='$DRIP_NLINSIZE'|i" $dripconf
+    perl -pi -e "s|^\s*nlinsize\s*=.*|NLINSIZE='$DPS_DRIP_NLINSIZE'|i" $dripconf
   else
     echo "DRIP_NLINSIZE is not set "
   fi;

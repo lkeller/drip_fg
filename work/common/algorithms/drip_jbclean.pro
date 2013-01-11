@@ -62,7 +62,7 @@ if jbmethod eq 'MEDIAN' then begin
     index=indgen(256/16)*16  ;index every 16th pixel in a row
     for k=0,255 do begin
         for j=0,15 do begin
-            jailbar(index+j,k)=median(jailbar(index+j,k))
+            jailbar(index+j,k)=median(jailbar(index+j,k),/even)
         endfor
     endfor
     jbcleaned = data-jailbar

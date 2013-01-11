@@ -172,8 +172,8 @@ if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
   echo "    dripconf=\"$inst_work${path_sep}drip${path_sep}conffiles${path_sep}dripconf\${USER}.txt\"" >> $dripexec 
   echo "    guiconf=\"$inst_work${path_sep}drip${path_sep}conffiles${path_sep}guiconf\${USER}.txt\"" >> $dripexec 
   echo "  else" >> $dripexec 
-  echo "    dripconf=\"/tmp/dripconf6744.txt\"" >> $dripexec 
-  echo "    guiconf=\"/tmp/guiconf6744.txt\"" >> $dripexec 
+  echo "    dripconf=\"/tmp/\$(basename dripconf)\$\$\$\$.txt\"" >> $dripexec 
+  echo "    guiconf=\"/tmp/\$(basename guiconf)\$\$\$\$.txt\"" >> $dripexec 
   echo "    tempconf='y'" >> $dripexec 
   echo "  fi" >> $dripexec 
   echo "  if ! [[ -f \$dripconf ]]; then " >> $dripexec 
@@ -205,30 +205,30 @@ if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
   
   
   echo "if [ ! -z \"\$aflag\" ]; then" >> $dripexec
-  echo "  if [[ -n \$DRIP_CORMERGE ]]; then" >> $dripexec
+  echo "  if [[ -n \$DPS_DRIP_CORMERGE ]]; then" >> $dripexec
   echo "    echo \"Modifying CORMERGE...\"" >> $dripexec
-  echo "    perl -pi -e \"s|^\s*cormerge\s*=.*|CORMERGE='\$DRIP_CORMERGE'|i\" \$dripconf" >> $dripexec
+  echo "    perl -pi -e \"s|^\s*cormerge\s*=.*|CORMERGE='\$DPS_DRIP_CORMERGE'|i\" \$dripconf" >> $dripexec
   echo "  else" >> $dripexec
   echo "    echo \"DRIP_CORMERGE is not set \"" >> $dripexec
   echo "  fi;" >> $dripexec
   
-  echo "  if [[ -n \$DRIP_CORCOADD ]]; then" >> $dripexec
+  echo "  if [[ -n \$DPS_DRIP_CORCOADD ]]; then" >> $dripexec
   echo "    echo \"Modifying CORCOADD...\"" >> $dripexec
-  echo "    perl -pi -e \"s|^\s*corcoadd\s*=.*|CORCOADD='\$DRIP_CORCOADD'|i\" \$dripconf" >> $dripexec
+  echo "    perl -pi -e \"s|^\s*corcoadd\s*=.*|CORCOADD='\$DPS_DRIP_CORCOADD'|i\" \$dripconf" >> $dripexec
   echo "  else" >> $dripexec
   echo "    echo \"DRIP_CORCOADD is not set \"" >> $dripexec
   echo "  fi;" >> $dripexec
   
-  echo "  if [[ -n \$DRIP_JBCLEAN ]]; then" >> $dripexec
+  echo "  if [[ -n \$DPS_DRIP_JBCLEAN ]]; then" >> $dripexec
   echo "    echo \"Modifying JBCLEAN...\"" >> $dripexec
-  echo "    perl -pi -e \"s|^\s*jbclean\s*=.*|JBCLEAN='\$DRIP_JBCLEAN'|i\" \$dripconf" >> $dripexec
+  echo "    perl -pi -e \"s|^\s*jbclean\s*=.*|JBCLEAN='\$DPS_DRIP_JBCLEAN'|i\" \$dripconf" >> $dripexec
   echo "  else" >> $dripexec
   echo "    echo \"DRIP_JBCLEAN is not set \"" >> $dripexec
   echo "  fi;" >> $dripexec
   
-  echo "  if [[ -n \$DRIP_NLINSIZE ]]; then" >> $dripexec
+  echo "  if [[ -n \$DPS_DRIP_NLINSIZE ]]; then" >> $dripexec
   echo "    echo \"Modifying NLINSIZE...\"" >> $dripexec
-  echo "    perl -pi -e \"s|^\s*nlinsize\s*=.*|NLINSIZE='\$DRIP_NLINSIZE'|i\" \$dripconf" >> $dripexec
+  echo "    perl -pi -e \"s|^\s*nlinsize\s*=.*|NLINSIZE='\$DPS_DRIP_NLINSIZE'|i\" \$dripconf" >> $dripexec
   echo "  else" >> $dripexec
   echo "    echo \"DRIP_NLINSIZE is not set \"" >> $dripexec
   echo "  fi;" >> $dripexec
@@ -291,30 +291,30 @@ if [[ -d "$destination${path_sep}work${path_sep}drip" ]]; then
   echo "#!/usr/bin/env bash" >> $dripexec
   echo "" >> $dripexec
   
-  echo "if [[ -n \$DRIP_CORMERGE ]]; then" >> $dripexec
+  echo "if [[ -n \$DPS_DRIP_CORMERGE ]]; then" >> $dripexec
   echo "  echo \"Modifying CORMERGE...\"" >> $dripexec
-  echo "  perl -pi -e \"s|^\s*cormerge\s*=.*|CORMERGE='\$DRIP_CORMERGE'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
+  echo "  perl -pi -e \"s|^\s*cormerge\s*=.*|CORMERGE='\$DPS_DRIP_CORMERGE'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
   echo "else" >> $dripexec
   echo "  echo \"DRIP_CORMERGE is not set \"" >> $dripexec
   echo "fi;" >> $dripexec
   
-  echo "if [[ -n \$DRIP_CORCOADD ]]; then" >> $dripexec
+  echo "if [[ -n \$DPS_DRIP_CORCOADD ]]; then" >> $dripexec
   echo "  echo \"Modifying CORCOADD...\"" >> $dripexec
-  echo "  perl -pi -e \"s|^\s*corcoadd\s*=.*|CORCOADD='\$DRIP_CORCOADD'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
+  echo "  perl -pi -e \"s|^\s*corcoadd\s*=.*|CORCOADD='\$DPS_DRIP_CORCOADD'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
   echo "else" >> $dripexec
   echo "  echo \"DRIP_CORCOADD is not set \"" >> $dripexec
   echo "fi;" >> $dripexec
   
-  echo "if [[ -n \$DRIP_JBCLEAN ]]; then" >> $dripexec
+  echo "if [[ -n \$DPS_DRIP_JBCLEAN ]]; then" >> $dripexec
   echo "  echo \"Modifying JBCLEAN...\"" >> $dripexec
-  echo "  perl -pi -e \"s|^\s*jbclean\s*=.*|JBCLEAN='\$DRIP_JBCLEAN'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
+  echo "  perl -pi -e \"s|^\s*jbclean\s*=.*|JBCLEAN='\$DPS_DRIP_JBCLEAN'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
   echo "else" >> $dripexec
   echo "  echo \"DRIP_JBCLEAN is not set \"" >> $dripexec
   echo "fi;" >> $dripexec
   
-  echo "if [[ -n \$DRIP_NLINSIZE ]]; then" >> $dripexec
+  echo "if [[ -n \$DPS_DRIP_NLINSIZE ]]; then" >> $dripexec
   echo "  echo \"Modifying NLINSIZE...\"" >> $dripexec
-  echo "  perl -pi -e \"s|^\s*nlinsize\s*=.*|NLINSIZE='\$DRIP_NLINSIZE'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
+  echo "  perl -pi -e \"s|^\s*nlinsize\s*=.*|NLINSIZE='\$DPS_DRIP_NLINSIZE'|i\" $inst_work${path_sep}drip${path_sep}dripconf.txt" >> $dripexec
   echo "else" >> $dripexec
   echo "  echo \"DRIP_NLINSIZE is not set \"" >> $dripexec
   echo "fi;" >> $dripexec
