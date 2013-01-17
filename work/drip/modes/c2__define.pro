@@ -87,7 +87,8 @@ siglev = drip_background(*self.drooped,self.imglinsection,header=*self.basehead)
 ; image non-linerity
 *self.imglinearized=drip_imgnonlin(*self.drooped,*self.basehead) 
 ; nonlin
-*self.linearized=drip_nonlin(*self.drooped,*self.lincor)     ;LIN
+*self.linearized=drip_nonlin(*self.imglinearized,*self.lincor,$
+                             *self.header,*self.basehead)
 ; flat
 *self.flatted=drip_flat(*self.linearized,*self.masterflat,*self.darksum,basehead=*self.basehead)
 ; stack

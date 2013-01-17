@@ -88,13 +88,13 @@ siglev = drip_background(*self.drooped,self.imglinsection,header=*self.basehead)
 ; image non-linerity
 *self.imglinearized=drip_imgnonlin(*self.drooped,*self.basehead) 
 ; nonlin
-*self.linearized=drip_nonlin(*self.drooped,*self.lincor)     ;LIN
+*self.linearized=drip_nonlin(*self.imglinearized,*self.lincor,$
+                             *self.header,*self.basehead)
 ; flat
 *self.flatted=drip_flat(*self.linearized,*self.masterflat,*self.darksum,basehead=*self.basehead)
 
 ; stack
-; REMOVED FLATFIELD CORRECTION 6/22/2011
-*self.stacked=drip_stack(*self.linearized,*self.header, posdata=*self.posdata, $
+*self.stacked=drip_stack(*self.flatted,*self.header, posdata=*self.posdata, $
                          chopsub=*self.chopsub,basehead=*self.basehead)
 ; Remove third axis from header since we only have one frame after stacking
 sxaddpar, *self.basehead, 'NAXIS', 2
