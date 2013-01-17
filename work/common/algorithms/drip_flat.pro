@@ -59,8 +59,11 @@ function drip_flat, data, masterflat, darksum, basehead=basehead
 
 drip_message, 'WARNING: IMAGE flat correction is not yet available'
 if keyword_set(basehead) then $
-  sxaddpar,basehead,'HISTORY','Spectral flatfield/defringing applied'
-;return,data
+  sxaddpar,basehead,'HISTORY','Flatfield/defringing was not applied'
+return,data
+
+if keyword_set(basehead) then $
+  sxaddpar,basehead,'HISTORY','Flatfield/defringing applied'
 
 ; error check
 s=size(data)
