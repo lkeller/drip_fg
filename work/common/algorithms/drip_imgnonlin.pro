@@ -47,7 +47,7 @@ function drip_imgnonlin, data, basehead, siglev=siglev
     siglev_read=drip_getpar(basehead,'NLINSLEV')
     if siglev_read eq 'x' then begin
       drip_message, 'WARNING: The signal level has not been saved properly in the header'
-      sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Invalid signal level)'
+      sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Invalid signal level)'
       return,data
     endif
     siglev=float(strsplit(siglev_read,'[],',/extract))
@@ -57,14 +57,14 @@ function drip_imgnonlin, data, basehead, siglev=siglev
   if (s[0] eq 2) AND (s[0] eq 3) then begin
     drip_message, 'WARNING: The size of data is incorrect (drip_imgnonlin)'
     drip_message, '         Linear correction is not applied'
-    sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Invalid data)'
+    sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Invalid data)'
     return,data
   endif
   if (s[0] eq 2) then begin
     if n_elements(siglev) gt 1 then begin
       drip_message, 'WARNING: The size of the signal does not match the size of the data (drip_imgnonlin)'
       drip_message, '         Linear correction is not applied'
-      sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Mismatch data and signal level arrays)'
+      sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Mismatch data and signal level arrays)'
       return,data
     endif
   endif
@@ -72,7 +72,7 @@ function drip_imgnonlin, data, basehead, siglev=siglev
     if n_elements(siglev) ne s[3] then begin
       drip_message, 'WARNING: The size of the signal does not match the size of the data (drip_imgnonlin)'
       drip_message, '         Linear correction is not applied'
-      sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Mismatch data and signal level arrays)'
+      sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Mismatch data and signal level arrays)'
       return,data
     endif
   endif
@@ -84,14 +84,14 @@ function drip_imgnonlin, data, basehead, siglev=siglev
   if filt_read eq 'x' then begin
     drip_message, 'WARNING: Wavelength is not defined in header (drip_imgnonlin)'
     drip_message, '         Linear correction is not applied'
-    sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Unknown WAVELENTH keyword)'
+    sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Unknown WAVELENTH keyword)'
     return, data
   endif
   filt = float(filt_read)
   if filt eq 0.0 then begin
     drip_message, 'WARNING: Wavelength is not correctly defined (drip_imgnonlin)'
     drip_message, '         Linear correction is not applied'
-    sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Unknown WAVELENTH keyword)'
+    sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Unknown WAVELENTH keyword)'
     return, data
   endif
   if (filt le 24.2) then camera = 'SWC' else camera='LWC'
@@ -103,7 +103,7 @@ function drip_imgnonlin, data, basehead, siglev=siglev
     if icap_read eq 'x' then begin
       drip_message, 'WARNING: ILOWCAP is not defined in header (drip_imgnonlin)'
       drip_message, '         Linear correction is not applied'
-      sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Unknown Capacity)'
+      sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Unknown Capacity)'
       return, data
     endif
     icap   = fxpar(basehead,'ILOWCAP')
@@ -117,7 +117,7 @@ function drip_imgnonlin, data, basehead, siglev=siglev
        else: begin
 	     drip_message, 'WARNING: E/ADU is not correctly defined [epadu='+epadu_read+'] (drip_imgnonlin)'
 	     drip_message, '         Linear correction is not applied'
-	     sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Unknown Capacity)'
+	     sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Unknown Capacity)'
 	     return, data         
 	   end
     ENDCASE
@@ -143,34 +143,34 @@ function drip_imgnonlin, data, basehead, siglev=siglev
   endif else begin
     scale = float(scale_read)
   endelse
-  sxaddpar,header,'HISTORY','Image non-linearity: Scale is '+strtrim(scale,1)
+  sxaddpar,basehead,'HISTORY','Image non-linearity: Scale is '+strtrim(scale,1)
   
   ; Read coeff and lims which depend on camera and cap
   coeff_read=drip_getpar(basehead,'NLC'+camera+cap)
   if coeff_read eq 'x' then begin
     drip_message, 'WARNING: NLINC'+camera+cap+' is not defined in configuration file (drip_imgnonlin)'
     drip_message, '         Linear correction is not applied'
-    sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Invalid Non-linearity Coefficients)'
+    sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Invalid Non-linearity Coefficients)'
     return, data
   endif
   pars=float(strsplit(coeff_read,'[],',/extract))
-  sxaddpar,header,'HISTORY','Image non-linearity: coefficients are '+coeff_read
+  sxaddpar,basehead,'HISTORY','Image non-linearity: coefficients are '+coeff_read
   
   lims_read=drip_getpar(basehead,'LIM'+camera+cap)
   if lims_read eq 'x' then begin
     drip_message, 'WARNING: LIM'+camera+cap+' is not defined in configuration file (drip_imgnonlin)'
     drip_message, '         Linear correction is not applied'
-    sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Invalid Limits of Non-linearity Coefficients)'
+    sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Invalid Limits of Non-linearity Coefficients)'
     return, data
   endif
   lims=float(strsplit(lims_read,'[],',/extract))
   if n_elements(lims) ne 2 then begin
     drip_message, 'WARNING: NLINLIM'+camera+cap+' has wrong format (drip_imgnonlin)'
     drip_message, '         Linear correction is not applied'
-    sxaddpar,header,'HISTORY','Image non-linearity was not corrected (Invalid Limits of Non-linearity Coefficients)'
+    sxaddpar,basehead,'HISTORY','Image non-linearity was not corrected (Invalid Limits of Non-linearity Coefficients)'
     return, data  
   endif
-  sxaddpar,header,'HISTORY','Image non-linearity: level limits are '+lims_read
+  sxaddpar,basehead,'HISTORY','Image non-linearity: level limits are '+lims_read
   
   ; Calculate correction
   xval = (siglev - refsig)/scale
