@@ -65,7 +65,7 @@ PRO objgroup::fill, skipfilesummary=skipfilesummary
     ; Read headers and complete filesummary
     for i=0,Nfound-1 do begin
       print,'Checking file '+ filesummary[i,0]
-      im = readfits(filesummary[i,0],h,/silent)
+      h = headfits(filesummary[i,0])
       for keycount=0,Nkey-1 do begin
 	; I added a case statement to take care of special requirements
 	; For example, checking if it is nod-match-chop which requires to compare nod and chop
