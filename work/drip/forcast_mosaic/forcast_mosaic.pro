@@ -60,7 +60,7 @@ print,rof
 print,exptime
 
 fdrp_mosaicims,ims,exp,bps,mos,expmap,wtmap,shifts_in=shifts,rot_angle=rof
-atv22,mos/expmap
+atv,mos/expmap
 writefits,fileroot+'.fits',mos/expmap
 
 end

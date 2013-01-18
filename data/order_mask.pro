@@ -36,6 +36,6 @@ for i=0,num_orders-1 do begin      ; for each spectral order
  
 endfor
 ord_mask = rot(ord_mask,90.0)
-atv22,ord_mask
+atv,ord_mask
 
 end

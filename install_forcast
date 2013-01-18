@@ -121,11 +121,8 @@ if [[ -d "$destination${path_sep}work${path_sep}fg" ]]; then
   echo "device, decomposed=0" >> $inst_work${path_sep}$fstart
   echo "device, retain=2" >> $inst_work${path_sep}$fstart
   echo "" >> $inst_work${path_sep}$fstart
-  #echo "!PATH= '+$inst_work${path_sep}fg${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}'" >> $inst_work${path_sep}$fstart
-  echo "!PATH= '+$inst_work${path_sep}fg${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}:+' +!dir" >> $inst_work${path_sep}$fstart
+  echo "!PATH= '+$inst_work${path_sep}fg${path_sep}:+$inst_work${path_sep}common${path_sep}:+$inst_libs${path_sep}:+' +!PATH + ':+' +' +!dir" >> $inst_work${path_sep}$fstart
   echo "!PATH=EXPAND_PATH(!PATH,/all_dirs)" >> $inst_work${path_sep}$fstart
-  #echo "!PATH=!PATH+':' +!dir" >> $inst_work${path_sep}$fstart
-  #echo "cd,'$inst_work${path_sep}fg'" >> $inst_work${path_sep}$fstart
 fi
 
 ######################################################################

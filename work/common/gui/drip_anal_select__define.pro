@@ -321,7 +321,7 @@ case event.id of
    end
    ; ATV button -> launch exernal viewer
    self.button_tv:begin
-       atv22,(*self.dataraw)
+       atv,(*self.dataraw)
        ;if (size(*self.dataraw))[0] EQ 3 then begin
        ;  drip_message,'ATV: Displaying 0th frame of 3-D array'
        ;endif

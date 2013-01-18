@@ -60,10 +60,7 @@ if (conffilename eq '') then begin
       endif else conffilename=''
   endelse
 
-  if strlen(conffilename) eq 0 then begin
-    conffilename = find_dripconf()
-  endif  
-endif else begin
+ endif else begin
   if file_test(conffilename) eq 0 then conffilename = ''
 endelse
 
