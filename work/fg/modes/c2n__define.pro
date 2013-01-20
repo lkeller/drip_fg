@@ -104,8 +104,9 @@ endif
 ;print, 'self.n=  :', self.n
 ; coadd
 if self.n gt 0 then begin
+    help,*self.coadded
     *self.coadded=drip_coadd(*self.extracted,*self.coadded, $
-                             *self.header, *self.basehead)
+                             *self.header, *self.basehead, n=self.n)
     ; Turn off 2-D coadd
     ; *self.coadded=*self.merged
 endif else begin

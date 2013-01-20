@@ -276,7 +276,7 @@ if (self.boxx0 lt  self.boxx1-2)  then begin
 endif else begin
     self.mw->print,'Box has to be at least 2 pixels wide'
 endelse
-
+print,'dri-_anal_extract: Extract (*****)
 end
 
 ;****************************************************************************

@@ -99,13 +99,12 @@ siglev = drip_background(*self.drooped,self.imglinsection,header=*self.basehead)
 ; Remove third axis from header since we only have one frame after stacking
 sxaddpar, *self.basehead, 'NAXIS', 2
 sxdelpar, *self.basehead, 'NAXIS3'
-; undistort NO DISTORTION CORRECTION FOR GRISM SPECTRA
+; undistort
 ;print,'************ UNDISTORTED *****************'
+;*self.undistorted=drip_undistort(*self.stacked,*self.header,*self.basehead)
 
-*self.undistorted=*self.stacked  ;drip_undistort(*self.stacked,*self.header,*self.basehead)
-sxaddpar, *self.basehead, 'HISTORY', 'Distortion correction NOT applied for grism spectra'
+*self.undistorted=drip_undistort(*self.stacked,*self.basehead,PINPOS=*self.pinpos)
 
-;*self.undistorted=drip_undistort(*self.stacked,*self.basehead,PINPOS=*self.pinpos)
 ; ADDED *self.flatted for IMAGECORELLATION IN MERGE
 ;*self.merged=drip_merge(*self.undistorted,*self.flatted,*self.header)
 ;
@@ -113,7 +112,7 @@ sxaddpar, *self.basehead, 'HISTORY', 'Distortion correction NOT applied for gris
 ; Here the new variable mergestack is filled. Need to arrange them
 ; ABABAB etc. for coadd.
 
-print,'************ COADD *****************'
+;print,'************ COADD *****************'
 new_ditherp = fix(drip_getpar(*self.header, 'DITHERP'))  ; Get dither position
 
 if self.n eq 0 then begin ; Initialize ABAA sequence
@@ -134,7 +133,7 @@ endif else begin
             2: begin
                   k1 = where(*self.ditherp eq 1)
                   k2 = where(*self.ditherp eq 2)
-		  useheader = *self.lastheader
+		  useheader = *self.header ; *self.lastheader
                end         
             3: begin
                   k1 = where(*self.ditherp eq 3)
@@ -160,15 +159,34 @@ endif else begin
                   k2 = where(*self.ditherp eq 8)
 		  useheader = *self.lastheader
                end
-        endcase
+         endcase
+
+        ;print,'Using header:  ',useheader
+
         if (k1(0) ne -1) and (k2(0) ne -1) then begin
             on_off_pair = [[[(*self.mergestack)[*,*,k1(0)]]],[[(*self.mergestack)[*,*,k2(0)]]]]
             self.coaddN+=1
+         
+            ;Subtract on_off_pair then spextract then coadd
+
+            ; EXTRACTION of 1-D spectrum from image
+            ; Rotate array 90 degrees if single-order mode
+
+
+            if (self.gmode lt 2) THEN BEGIN ;
+                on_off_pair=rot(on_off_pair, -90.0)
+            endif
+
+            sub = on_off_pair[*,*,1] - on_off_pair[*,*,0]
+            *self.extracted=drip_spextract(sub, *self.basehead, self.gmode) ;header
+            *self.allwave=(*self.extracted)[*,0]
+            *self.allflux=(*self.extracted)[*,1]
+    
             if self.coaddN eq 1 then begin
-                *self.coadded=drip_coadd(on_off_pair,*self.coadded, $
+                *self.coadded=drip_coadd(*self.extracted,*self.coadded, $
                 useheader, *self.basehead, /first)
             endif else begin
-                *self.coadded=drip_coadd(on_off_pair,*self.coadded, $
+                *self.coadded=drip_coadd(*self.extracted,*self.coadded, $
                 useheader, *self.basehead, n=self.coaddN)
             endelse
         endif       
@@ -178,34 +196,7 @@ endif else begin
         (*self.ditherp)[0] = new_ditherp
         ; Need to account for orphan frame (e.g. A waiting for B)
     endelse
-endelse  
-
-; EXTRACTION of 1-D spectrum from image
-; Rotate array 90 degrees if single-order mode
-
-;print,'GMODE', self.gmode
-if (self.gmode lt 2) THEN BEGIN ;
-    *self.undistorted=rot(*self.undistorted, -90.0)
-endif
-
-*self.extracted=drip_spextract(*self.coadded, *self.basehead, self.gmode) ;header, coadded was undistorted
-;print, 'extracted     ', *self.extracted
-*self.allwave=(*self.extracted)[*,0]
-*self.allflux=(*self.extracted)[*,1] 
-
-; coadd
-;if self.n gt 0 then begin
-;    *self.coadded=drip_coadd(*self.extracted,*self.coadded, $
-;                             *self.header, *self.basehead)
-    ; Turn off 2-D coadd
-    ; *self.coadded=*self.merged
-;endif else begin
-;    *self.coadded=drip_coadd(*self.extracted,*self.coadded, $
-;                            *self.header, *self.basehead, /first)
-    ; Turn off 2-D coadd
-    ; *self.coadded=*self.merged
-;endelse
- 
+endelse    
 
 ; create README
 self.readme=['pipeline: 2 Position Chop with large offset DRiP', $ ;info lines

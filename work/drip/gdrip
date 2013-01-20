@@ -14,22 +14,22 @@ do
 done
 
 if [ ! -z "$dflag" ]; then
-  dripconf=/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt
-  guiconf=/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/guiconf.txt
+  dripconf=/Users/keller/Research/drip_fg/work/drip/dripconf.txt
+  guiconf=/Users/keller/Research/drip_fg/work/drip/guiconf.txt
 else
   if [ ! -z "$uflag" ]; then 
-    dripconf="/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/conffiles/dripconf${USER}.txt"
-    guiconf="/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/conffiles/guiconf${USER}.txt"
+    dripconf="/Users/keller/Research/drip_fg/work/drip/conffiles/dripconf${USER}.txt"
+    guiconf="/Users/keller/Research/drip_fg/work/drip/conffiles/guiconf${USER}.txt"
   else
     dripconf="/tmp/$(basename dripconf)$$$$.txt"
     guiconf="/tmp/$(basename guiconf)$$$$.txt"
     tempconf='y'
   fi
   if ! [[ -f $dripconf ]]; then 
-    cp /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt $dripconf
+    cp /Users/keller/Research/drip_fg/work/drip/dripconf.txt $dripconf
   fi
   if ! [[ -f $guiconf ]]; then 
-    cp /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/guiconf.txt $guiconf
+    cp /Users/keller/Research/drip_fg/work/drip/guiconf.txt $guiconf
   fi
 fi
 
@@ -79,14 +79,14 @@ if [ ! -z "$aflag" ]; then
 
 fi
 
-export IDL_STARTUP=/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip_startup
+export IDL_STARTUP=/Users/keller/Research/drip_fg/work/drip_startup
 Starting DRIP...
 if [ ! -z "$aflag" ]; then
   (
   echo "drip_pipe, 'inputset.lst',outDMfile='outputset.lst',outlist=['merged','coadded','undistorted']"
   )|idl
 else
-  idl /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/drip_gui
+  idl /Users/keller/Research/drip_fg/work/drip/drip_gui
 fi
 
 if [ "$tempconf" == 'y' ]; then

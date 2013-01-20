@@ -29,7 +29,7 @@ pro drip_extman::setmap,mode
 ;         4 - G5
 ;         5 - G6
 
-;  This case statement should actually come from the header file or master flat.
+;  This case statement could eventually come from the header file or master flat.
 ; 
 case mode of
     0:begin            ; G1xG2
@@ -105,13 +105,16 @@ data=*self.data
 self->setmap,mode
 map=*self.map
 
-readcol, '../../data/wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
+; Get information from FITS header
+header = self.dataman->getelement(dapname,'HEADER')
+
+caldata = drip_getpar(header,'caldata')
+readcol, caldata+'wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
+
+default_wavecal = 1  ; Use default unless we find a wavcal map
 
 n_orders=(n_elements(*self.orders))   ; number of extractions/orders
 
-; Get information from FITS header
-
-header = self.dataman->getelement(dapname,'HEADER')
 
 ;extraction_mode = drip_getpar(header, 'EXTMODE')
 extraction_mode = 'FULLAP'
@@ -122,13 +125,40 @@ instrument_mode = drip_getpar(header, 'INSTMODE')
 if (uint(sxpar(header,'C2NC2')) eq 1) then instrument_mode = 'C2NC2'
 
 case mode of
-   0: grmode_txt = 'G1xG2'
-   1: grmode_txt = 'G3xG4'
-   2: grmode_txt = 'G1'
-   3: grmode_txt = 'G3'
-   4: grmode_txt = 'G5'
-   5: grmode_txt = 'G6'
+   0: begin
+      grmode_txt = 'G1xG2'
+      lmap_file = 'g1xg2_lmap.fits'
+      end
+   1: begin
+      grmode_txt = 'G3xG4'
+      lmap_file = 'g3xg4_lmap.fits'
+      end
+   2: begin
+      grmode_txt = 'G1'
+      lmap_file = 'g1_lmap.fits' 
+      end
+   3: begin
+      grmode_txt = 'G3'
+      lmap_file = 'g3_lmap.fits'
+      end
+   4: begin
+      grmode_txt = 'G5'
+      lmap_file = 'g5_lmap.fits'
+      end
+   5: begin
+      grmode_txt = 'G6'
+      lmap_file = 'g6_lmap.fits'
+      end
 endcase
+
+lmap=readfits(caldata+lmap_file,/noscale,/silent)
+if size(lmap,/N_dimensions) gt 0 then begin
+    ; Use lmap for wavecal;
+    default_wavecal = 0
+endif  else begin
+    ; no valid lmap data loaded - use default wavecal
+    drip_message, 'spextract:  Error Loading wavelength map, using default wavecal'
+endelse
  
 case instrument_mode of
     'C2N': begin
@@ -295,13 +325,59 @@ for i=0,n_orders-1 do begin
          
        END
         'FULLAP' : begin
-       drip_message,'Using FULL Aperture Extraction method'
+          drip_message,'drip_anal_extract: Using FULL Aperture Extraction method'
       
           ; Full Aperture Extraction
           extracted_spectrum = fltarr(n_elements(sub_array[*,0]))
-          for k = 0, n_elements(extracted_spectrum)-1 DO BEGIN
-             extracted_spectrum[k] = total((sub_array[k,*]), /NAN)
-          ENDFOR
+          
+           ; Use the wavecal image if default is 0 (NO)
+       if default_wavecal eq 0 then begin
+           ;all rows will be wavelength calibrated with respect to first row
+           ;Calculate wavelength shift of each row wrt first row
+           wl_shift = shift(lmap[0,*],-1)-lmap[0,0]
+
+
+           ;calculate average pixel resolution
+           rmap = shift(lmap,-1,0)-lmap
+           resolution = mean(rmap[0:254,*]);microns/pixel
+
+
+           pix_shift = (wl_shift/resolution)
+
+           ;oversample data by a factor of x, shift wavelengths, and reform pixels
+           x = 10
+           pix_shift_over = round(pix_shift*x)
+           nrow = 256
+           ncol = 256
+
+           out_image = fltarr(ncol,nrow)
+           for ii=0,nrow-1 do begin; for each row
+               vec = data[*,ii]
+               vec_over = fltarr(x*n_elements(vec));create oversampled array
+               for kk=0,ncol-1 do begin
+                   vec_over[x*kk:x*(kk+1)-1] = vec[kk]/x; conserve flux!
+               endfor
+               vec_shifted = shift(vec_over,-1*pix_shift_over[255-ii])
+               ;reform oversampled spectrum
+               vec_out = fltarr(n_elements(vec))
+               for kk=0,ncol-1 do begin
+                   vec_out[kk] = total(vec_shifted[x*kk:x*(kk+1)-1]); flux still conserved
+               endfor
+               out_image[*,ii] = vec_out
+           endfor
+            
+           ;sum spectrum in spatial direction
+           extracted_spectrum = total(out_image,2)
+        endif else begin
+           ;No info on row-by-row extraction so just total the array in the spatial direction
+           for k = 0, n_elements(extracted_spectrum)-1 DO BEGIN
+               extracted_spectrum[k] = total((sub_array[k,*]), /NAN)
+           endfor
+        endelse
+
+          ;for k = 0, n_elements(extracted_spectrum)-1 DO BEGIN
+          ;   extracted_spectrum[k] = total((sub_array[k,*]), /NAN)
+          ;ENDFOR
        end
     ENDCASE
 
@@ -315,10 +391,24 @@ for i=0,n_orders-1 do begin
     endif else davg=avg
     extracted_spectrum=extracted_spectrum-davg
 
-    *self.allwave[i]=wave
+    if default_wavecal eq 0 then *self.allwave[i] = lmap[*,0]
+    if default_wavecal eq 1 then *self.allwave[i]=wave
     *self.allflux[i]=extracted_spectrum
-endfor
-drip_message,'Pre-defined Extraction FINISHED'
+ endfor
+
+; G3, G5, and G6 have lambda increaseing right to left (all others are left
+; to right. So flitp G5 and G6 'allflux' arrays.
+
+;if (mode eq 3) OR (mode eq 4) OR (mode eq 5) then begin
+;   print,'Reversing g5 or g6 wavelength order'
+;   self.allflux=reverse(self.allflux) ; reverse order so lambda left --> right
+   ;allerror=reverse(allerror) 
+   ;extracted =[[allwave],[allflux],[allerror],[ext_orders]]
+;endif else begin
+   ;extracted = [[allwave],[allflux],[allerror],[ext_orders]]
+;endelse
+
+drip_message,'drip_extman: Pre-defined Extraction FINISHED'
 
 end
 ;******************************************************************************
@@ -352,6 +442,7 @@ end
 ;******************************************************************************
 pro drip_extman::user_defined_extraction
 
+print,'extman::user_defined_extraction (*****)'
 common drip_config_info, dripconf
 
 data=*self.data
@@ -360,17 +451,11 @@ dy=self.boxy1-self.boxy2 ; height
 
 slope= float(self.boxy2-self.boxy0)/float(self.boxx2-self.boxx0) ;slope
 
-datadir = drip_getpar(header, 'CALDATA')
-if datadir eq 'x' then begin
-  print,'drip_extman::user_defined_extraction -Error finding wavecal.txt'
-  print,'drip_extman::user_defined_extraction - Spectrum extraction failed'
-  return
-endif
 ;Get wavecal data from wavecal.txt
-readcol, datadir+'wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
+readcol, 'DEMO_GRISM_DATA_v2.3/Cal/wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
 
 header = self.dataman->getelement(self.dapsel_name,'HEADER')
-extraction_mode = drip_getpar(header, 'EXTMODE')
+extraction_mode = 'FULLAP'  ;drip_getpar(header, 'EXTMODE')
 instrument_mode = drip_getpar(header, 'INSTMODE')
 
 case instrument_mode of
@@ -647,5 +732,6 @@ struct={drip_extman,$
         map:ptr_new(),$         ;list of y-coordinates for extraction
         orders:ptr_new(),$      ;[array with order numbers]
         ord_height:ptr_new(),$  ;[array of order heights (in pixels)]
-        n:0}
+        n:0}   ;,$
+        ;inherits drip}          ; child object of drip}
 end
