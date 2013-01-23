@@ -1222,7 +1222,7 @@ pro drip::findcal
 ; most recent flat that has the same instrument configuration as the data
 ; to be reduced.
 no_flat_data=0 ; 1 = 'No flat data found', 0 = 'flat data found'
-fitsdir,file_names, keyvalue, self.pathcal, t=self.pathcal+'fitsdir.txt', $
+custom_fitsdir,file_names, keyvalue, self.pathcal, t=self.pathcal+'fitsdir.txt', $
   /nosize, keywords='INSTMODE, INSTCFGN, DATE-OBS, TIME-OBS, OBJECT'
 icfg=drip_getpar(*self.basehead,'INSTCFGN')
 ;print,'FILENAMES',where(keyvalue[*,0] eq 'FLAT' and keyvalue[*,1] eq icfg)
