@@ -117,10 +117,10 @@ endif
 ; initialize variables
 ;resize=2.0 ;2.0
 ;border=128 ;128
-resizeread = drip_getpar(basehead,'RESIZE')
+resizeread = drip_getpar(header,'RESIZE')
 if resizeread eq 'x' then resize=2.0 $
 else resize = float(resizeread)
-borderread = drip_getpar(basehead,'BORDER')
+borderread = drip_getpar(header,'BORDER')
 if borderread eq 'x' then border=128 $
 else border = fix(borderread)
 
@@ -219,7 +219,7 @@ switch mode of
                 ;print,'XOPTYOPT',xopt,yopt
             endfor  
         endif
-        if cormerge eq 'COR' then cormerge = 'CENT'
+        ;if cormerge eq 'COR' then cormerge = 'CENT'
         if cormerge eq 'COR' then begin
            drip_message,'drip_merge - Using cross-correlation to merge chop/nod frames'
           
@@ -251,17 +251,17 @@ switch mode of
           NPEAKS=2
           findpeaksout=fltarr(2)
           editfile = replicate(0.,s[1],s[2])
-	  threshread = drip_getpar(basehead,'MTHRESH')
+	  threshread = drip_getpar(header,'MTHRESH')
 	  if threshread eq 'x' then thresh=15.0 $
 	  else thresh = float(threshread)
 	  
 	  ; Check if there is a fwhm that the user defines in dripconf 
-	  fwhmread = drip_getpar(basehead,'MFWHM')
+	  fwhmread = drip_getpar(header,'MFWHM')
 	  if fwhmread ne 'x' then begin
-            junk = drip_peakfind(data,NPEAKS=NPEAKS,STARS=findpeaksout,THRESH=thresh, TSTEP=.25, CHOPNODDIST=[distchop,distnod]) 
-	    drip_message, 'drip_merge - Using default FWHM in drip_peakfind'
+             junk = drip_peakfind(data,NPEAKS=NPEAKS,STARS=findpeaksout,THRESH=thresh, TSTEP=.25) 
+             drip_message, 'drip_merge - Using default FWHM in drip_peakfind'
 	  endif else begin
-            junk = drip_peakfind(data,NPEAKS=NPEAKS,STARS=findpeaksout,THRESH=thresh, TSTEP=.25, CHOPNODDIST=[distchop,distnod], FWHM=float(fwhmread))
+             junk = drip_peakfind(data,NPEAKS=NPEAKS,STARS=findpeaksout,THRESH=thresh, TSTEP=.25, FWHM=float(fwhmread))
 	    drip_message, 'drip_merge - FWHM is '+fwhmread+' in drip_peakfind'
           endelse
 	  NPEAKS = n_elements(findpeaksout[0,*])
@@ -287,7 +287,7 @@ switch mode of
 	       if keyword_set(basehead) then $
 		 sxaddpar,basehead,'HISTORY','Merge: X, Y shifts are '+strtrim(move[0],1)+','+strtrim(move[1],1)+' for peak '+strtrim(temp[0],1)+','+strtrim(temp[1],1)
                if (pixval lt 0) then begin ;check if added img is pos or neg
-                  editfile= editfile-shift(data, move) ;negitive images
+                  editfile= editfile-shift(data, move) ;negative images
                endif else begin
                   editfile= editfile+shift(data, move) ;positive images
                endelse
@@ -567,12 +567,12 @@ switch mode of
           editfile = replicate(0.,s[1],s[2])
           distnod = sqrt(nodx^2+nody^2)
           distchop = sqrt(chopx^2+chopy^2)
-	  threshread = drip_getpar(basehead,'MTHRESH')
+	  threshread = drip_getpar(header,'MTHRESH')
 	  if threshread eq 'x' then thresh=15.0 $
 	  else thresh = float(threshread)
 	  
 	  ; Check if there is a fwhm that the user defines in dripconf 
-	  fwhmread = drip_getpar(basehead,'MFWHM')
+	  fwhmread = drip_getpar(header,'MFWHM')
 	  if fwhmread eq 'x' then begin
             junk = drip_peakfind(data,NPEAKS=NPEAKS,STARS=findpeaksout,THRESH=thresh, TSTEP=.25, CHOPNODDIST=[distchop,distnod]) 
 	    drip_message, 'drip_merge - Using default FWHM in drip_peakfind'
