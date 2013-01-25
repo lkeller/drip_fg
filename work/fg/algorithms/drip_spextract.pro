@@ -32,6 +32,11 @@
 ;                forcast setup
 ;   Modified     Rob Lewis, Ithaca College, August 5,2011 spectral map/masks
 ;                updated for new filter wheel/grism configurations
+;   Modified     Michael Pavel (UT Austin) and Luke Keller, Ithaca College
+;                Full-aperture extraction now looks for and used a
+;                wavecal map in the calibration data area. Uses
+;                default polynomical coeffs in wavcal.txt if no maps
+;                found. Also now rectifying curvature in spectral lines.
 
 ;******************************************************************************
 ; DRIP_SPEXTRACT - Pipeline spectral extraction
@@ -43,37 +48,77 @@ common drip_config_info, dripconf
 
 map=map
 
-datadir = drip_getpar(header, 'CALDATA')
-if datadir eq 'x' then begin
-  print,'Error finding wavecal.txt'
-  print,'Spectrum extraction failed'
-  return,data
-endif
-readcol, datadir+'wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
+;Read and prepare the default wavelength calibration (in case the
+;individual wavecal maps (FITS files) for a modes can't be found.
+caldata=drip_getpar(header,'caldata')
 
-orderslist=orders
+readcol, caldata+'wavecal.txt', grism_mode, orders, Coeff_0, Coeff_1, Coeff_2, $
+    Coeff_3, FORMAT='A,I,F,F,F,F', skipline = 1
 
-;extraction_mode = drip_getpar(header, 'EXTMODE')
-instrument_mode = drip_getpar(header, 'INSTMODE')
-print,'C2NC2= ', (uint(drip_getpar(header,'C2NC2')) eq 1)
-if (uint(sxpar(header,'C2NC2')) eq 1) then instrument_mode = 'C2NC2'
-;instrument_mode = 'C2NC2'
-extraction_mode = 'FULLAP'
-source_type = drip_getpar(header, 'SRCTYPE')
-if source_type eq 'POINT_SOURCE' then extraction_mode = 'OPTIMAL'     
+; Wavecal uses wavecal image (more precise than the default above) if
+; the wavecal map is found
+
+drip_message, 'Default wavecal file is: '+caldata+'wavecal.txt'
+default_wavecal = 1  ; Use default unless we find a wavcal map
 
 if (gmode gt 1) then n_orders = 1
 if (gmode eq 1) then n_orders = 5
 if (gmode eq 0) then n_orders = 8
 
 case gmode of
-   0: grmode_txt = 'G1xG2'
-   1: grmode_txt = 'G3xG4'
-   2: grmode_txt = 'G1'
-   3: grmode_txt = 'G3'
-   4: grmode_txt = 'G5'
-   5: grmode_txt = 'G6'
+   0: begin
+      grmode_txt = 'G1xG2'
+      lmap_file = 'g1xg2_lmap.fits'
+      end
+   1: begin
+      grmode_txt = 'G3xG4'
+      lmap_file = 'g3xg4_lmap.fits'
+      end
+   2: begin
+      grmode_txt = 'G1'
+      lmap_file = 'g1_lmap.fits' 
+      end
+   3: begin
+      grmode_txt = 'G3'
+      lmap_file = 'g3_lmap.fits'
+      end
+   4: begin
+      grmode_txt = 'G5'
+      lmap_file = 'g5_lmap.fits'
+      end
+   5: begin
+      grmode_txt = 'G6'
+      lmap_file = 'g6_lmap.fits'
+      end
 endcase
+
+lmap=readfits(caldata+lmap_file,/noscale,/silent)
+if size(lmap,/N_dimensions) gt 0 then begin
+    ; Use lmap for wavecal;
+    default_wavecal = 0
+endif  else begin
+    ; no valid lmap data loaded - use default wavecal
+    drip_message, 'spextract:  Error Loading wavelength map, using default wavecal'
+endelse
+
+
+;if gmode eq 2 then begin
+;    lmap_file = 'DEMO_GRISM_DATA_v2.3/Cal/g1_lmap.fits'
+;    lmap = readfits(lmap_file)
+;endif
+
+orderslist=orders
+
+;extraction_mode = drip_getpar(header, 'EXTMODE')
+instrument_mode = drip_getpar(header, 'INSTMODE')
+;print,'C2NC2= ', (uint(drip_getpar(header,'C2NC2')) eq 1)
+if (uint(sxpar(header,'C2NC2')) eq 1) then instrument_mode = 'C2NC2'
+;instrument_mode = 'C2NC2'
+extraction_mode = 'FULLAP'
+source_type = drip_getpar(header, 'SRCTYPE')
+if source_type eq 'POINT_SOURCE' then extraction_mode = 'OPTIMAL' 
+
+; NEED tapered column extraction option    
 
 ;  This information should actually come from the header file or dripconf.txt
 ; 
@@ -304,12 +349,55 @@ for i=0,n_orders-1 do begin
        'FULLAP' : begin
        drip_message,'Using FULL Aperture Extraction method'
       
-          ; Full Aperture Extraction
-          extracted_spectrum = fltarr(n_elements(sub_array[*,0]))
-          for k = 0, n_elements(extracted_spectrum)-1 DO BEGIN
-             extracted_spectrum[k] = total((sub_array[k,*]), /NAN)
-          ENDFOR
-       end
+       ; Full Aperture Extraction
+
+       extracted_spectrum = fltarr(n_elements(sub_array[*,0]))
+       
+       ; Use the wavecal image if default is 0 (NO)
+       if default_wavecal eq 0 then begin
+           ;all rows will be wavelength calibrated with respect to first row
+           ;Calculate wavelength shift of each row wrt first row
+           wl_shift = shift(lmap[0,*],-1)-lmap[0,0]
+
+
+           ;calculate average pixel resolution
+           rmap = shift(lmap,-1,0)-lmap
+           resolution = mean(rmap[0:254,*]);microns/pixel
+
+
+           pix_shift = (wl_shift/resolution)
+
+           ;oversample data by a factor of x, shift wavelengths, and reform pixels
+           x = 10
+           pix_shift_over = round(pix_shift*x)
+           nrow = 256
+           ncol = 256
+
+           out_image = fltarr(ncol,nrow)
+           for ii=0,nrow-1 do begin; for each row
+               vec = data[*,ii]
+               vec_over = fltarr(x*n_elements(vec));create oversampled array
+               for kk=0,ncol-1 do begin
+                   vec_over[x*kk:x*(kk+1)-1] = vec[kk]/x; conserve flux!
+               endfor
+               vec_shifted = shift(vec_over,-1*pix_shift_over[255-ii])
+               ;reform oversampled spectrum
+               vec_out = fltarr(n_elements(vec))
+               for kk=0,ncol-1 do begin
+                   vec_out[kk] = total(vec_shifted[x*kk:x*(kk+1)-1]); flux still conserved
+               endfor
+               out_image[*,ii] = vec_out
+           endfor
+            
+           ;sum spectrum in spatial direction
+           extracted_spectrum = total(out_image,2)
+        endif else begin
+           ;No info on row-by-row extraction so just total the array in the spatial direction
+           for k = 0, n_elements(extracted_spectrum)-1 DO BEGIN
+               extracted_spectrum[k] = total((sub_array[k,*]), /NAN)
+           endfor
+        endelse
+    end
     endcase
 
     if (i eq 0) then avg1=mean(extracted_spectrum) ; Roughly averages spectra to be on the same scale...
@@ -318,8 +406,9 @@ for i=0,n_orders-1 do begin
         davg=avg-avg1
     endif else davg=avg
     extracted_spectrum=extracted_spectrum-davg
-    
-    allwave=[allwave,xvalue] ;allwave=[allwave,wave]
+
+    if default_wavecal eq 0 then allwave=[allwave,lmap[*,0]]
+    if default_wavecal eq 1 then allwave=[allwave,wave]
     allflux=[allflux,extracted_spectrum]
 
     sz_wave=size(wave)
@@ -337,13 +426,13 @@ ext_orders=ext_orders[1:*,*]
 ; G5 and G6 have lambda increaseing right to left (all others are left
 ; to right. So flitp G5 and G6 'allflux' arrays.
 
-if (gmode eq 4) OR (gmode eq 5) then begin
+if (gmode eq 3) OR (gmode eq 4) OR (gmode eq 5) then begin
 ;   print,'Reversing g5 or g6 wavelength order'
    allflux=reverse(allflux) ; reverse order so lambda left --> right
    allerror=reverse(allerror) 
-   extracted =[[allwave],[allflux],[allerror],[ext_orders]]
+   extracted =transpose([[allwave],[allflux],[allerror],[ext_orders]])
 endif else begin
-   extracted = [[allwave],[allflux],[allerror],[ext_orders]]
+   extracted = transpose([[allwave],[allflux],[allerror],[ext_orders]])
 endelse
 
 sxaddpar,header,'HISTORY','Spectral extraction complete using '+extraction_mode

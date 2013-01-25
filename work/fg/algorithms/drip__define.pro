@@ -1085,8 +1085,26 @@ PRO drip::saveproducts, innames, output=output, filename=filename, cut256x256=cu
 	  fname = self.pathsave + fname
 	endif else begin
 	  drip_message,'saved reduced data file: '+strmid(fname,strpos(fname,path_sep())+1,strlen(fname))
-	endelse
-	fits_write,fname,*data,*self.basehead    
+       endelse
+
+                                ; Extract processing HISTORY out of
+                                ; self.basehead and add it to
+                                ; self.header for saving intermediate
+                                ; data products
+        ;help,*self.basehead
+        base_header = *self.basehead
+        proc_hist=base_header(where(strmatch(*self.basehead, 'HISTORY*') eq 1))  ; Extract HISTORY keywords and data
+        header_header = *self.header
+        
+        header_header = header_header[0:n_elements(header_header)-2]  ; strip END keyword off
+        int_write_header = [header_header, proc_hist, 'END     ']          ; add HISTORY to the end of self.header and add END
+        ;print,int_write_header
+        
+        if strmatch(fname,'*coadd*') eq 1 then int_write_header = *self.basehead  ; use base header for final coadded image(s)
+	fits_write,fname,*data, int_write_header
+
+	;fits_write,fname,*data,*self.basehead  
+  
       endelse
     endfor    
     
@@ -1282,6 +1300,7 @@ pro drip::getcal
 
 ; Find gmode, GRISM mode selection using INSTCFG and SPECTRAL* keywords
 
+print,'GMODE ',self.gmode
 
 if(drip_getpar(header,'SPECTRAL') eq 'FOR_XG063' OR $
    drip_getpar(*self.basehead, 'SPECTEL1') eq 'FOR_XG063') then begin
@@ -1315,7 +1334,10 @@ if(drip_getpar(header,'SPECTRAL') eq 'FOR_G329' OR $
    drip_getpar(*self.basehead, 'SPECTEL1') eq 'FOR_G329') then begin
     value='G6'
     self.gmode=5
-endif
+ endif
+
+print,'spectral  ',drip_getpar(header,'SPECTRAL')
+print,'spectel1  ',drip_getpar(*self.basehead, 'SPECTEL1')
 
 print,'GMODE:  ',self.gmode
 
@@ -1328,16 +1350,14 @@ if (self.gmode gt 3) then begin
    dark = self.pathcal+'lwc_dark_10262012.fits'
 endif
 
-;***********   NEEDS TESTING with raw FLATS **********
-; Using existing pre-made flats
-; 
-; flat files
+ 
+; flat files for grism modes
 
 case self.gmode of
    0: self.flatfile = self.pathcal+'gxd5-8_rawflat_300k.fits' ; was '../Cal/G1xG2_m_flat.fits'
-   1: self.flatfile = self.pathcal+'G3x4_m_flat.fits'
+   1: self.flatfile = self.pathcal+'G3x4_m_flat.fits'         
    2: self.flatfile = self.pathcal+'g5-8_rawflat_300k.fits'
-   3: self.flatfile = self.pathcal+'G3_m_flat.fits'
+   3: self.flatfile = self.pathcal+'g8-13_rawflat_300k.fits'           ; was '../Cal/G3_m_flat.fits'
    4: self.flatfile = self.pathcal+'g17-28_rawflat_300k.fits'
    5: self.flatfile = self.pathcal+'g28-37_rawflat_300k.fits'
 endcase
