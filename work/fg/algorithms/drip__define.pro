@@ -1334,7 +1334,10 @@ if(drip_getpar(header,'SPECTRAL') eq 'FOR_G329' OR $
    drip_getpar(*self.basehead, 'SPECTEL1') eq 'FOR_G329') then begin
     value='G6'
     self.gmode=5
-endif
+ endif
+
+print,'spectral  ',drip_getpar(header,'SPECTRAL')
+print,'spectel1  ',drip_getpar(*self.basehead, 'SPECTEL1')
 
 print,'spectral  ',drip_getpar(header,'SPECTRAL')
 print,'spectel1  ',drip_getpar(*self.basehead, 'SPECTEL1')
