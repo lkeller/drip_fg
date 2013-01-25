@@ -1339,9 +1339,6 @@ if(drip_getpar(header,'SPECTRAL') eq 'FOR_G329' OR $
 print,'spectral  ',drip_getpar(header,'SPECTRAL')
 print,'spectel1  ',drip_getpar(*self.basehead, 'SPECTEL1')
 
-print,'spectral  ',drip_getpar(header,'SPECTRAL')
-print,'spectel1  ',drip_getpar(*self.basehead, 'SPECTEL1')
-
 print,'GMODE:  ',self.gmode
 
 if (self.gmode le 3) then begin
