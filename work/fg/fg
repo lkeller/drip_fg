@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 (
- echo "@/home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/fg/fgstart.start"
+ echo "@/Users/keller/Research/drip_fg/work/fg/fgstart.start"
  echo "gui"
 )|idl

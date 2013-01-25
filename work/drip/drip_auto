@@ -2,25 +2,25 @@
 
 if [[ -n $DPS_DRIP_CORMERGE ]]; then
   echo "Modifying CORMERGE..."
-  perl -pi -e "s|^\s*cormerge\s*=.*|CORMERGE='$DPS_DRIP_CORMERGE'|i" /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt
+  perl -pi -e "s|^\s*cormerge\s*=.*|CORMERGE='$DPS_DRIP_CORMERGE'|i" /Users/keller/Research/drip_fg/work/drip/dripconf.txt
 else
   echo "DRIP_CORMERGE is not set "
 fi;
 if [[ -n $DPS_DRIP_CORCOADD ]]; then
   echo "Modifying CORCOADD..."
-  perl -pi -e "s|^\s*corcoadd\s*=.*|CORCOADD='$DPS_DRIP_CORCOADD'|i" /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt
+  perl -pi -e "s|^\s*corcoadd\s*=.*|CORCOADD='$DPS_DRIP_CORCOADD'|i" /Users/keller/Research/drip_fg/work/drip/dripconf.txt
 else
   echo "DRIP_CORCOADD is not set "
 fi;
 if [[ -n $DPS_DRIP_JBCLEAN ]]; then
   echo "Modifying JBCLEAN..."
-  perl -pi -e "s|^\s*jbclean\s*=.*|JBCLEAN='$DPS_DRIP_JBCLEAN'|i" /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt
+  perl -pi -e "s|^\s*jbclean\s*=.*|JBCLEAN='$DPS_DRIP_JBCLEAN'|i" /Users/keller/Research/drip_fg/work/drip/dripconf.txt
 else
   echo "DRIP_JBCLEAN is not set "
 fi;
 if [[ -n $DPS_DRIP_NLINSIZE ]]; then
   echo "Modifying NLINSIZE..."
-  perl -pi -e "s|^\s*nlinsize\s*=.*|NLINSIZE='$DPS_DRIP_NLINSIZE'|i" /home/mcharcos/Documents/Pipelines/forcast/nov2012/drip_fg/work/drip/dripconf.txt
+  perl -pi -e "s|^\s*nlinsize\s*=.*|NLINSIZE='$DPS_DRIP_NLINSIZE'|i" /Users/keller/Research/drip_fg/work/drip/dripconf.txt
 else
   echo "DRIP_NLINSIZE is not set "
 fi;
