@@ -257,7 +257,7 @@ switch mode of
 	  
 	  ; Check if there is a fwhm that the user defines in dripconf 
 	  fwhmread = drip_getpar(header,'MFWHM')
-	  if fwhmread ne 'x' then begin
+	  if fwhmread eq 'x' then begin
              junk = drip_peakfind(data,NPEAKS=NPEAKS,STARS=findpeaksout,THRESH=thresh, TSTEP=.25) 
              drip_message, 'drip_merge - Using default FWHM in drip_peakfind'
 	  endif else begin
