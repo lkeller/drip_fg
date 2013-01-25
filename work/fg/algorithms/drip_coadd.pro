@@ -57,7 +57,7 @@
 ;                 Added grism spectra coadd option
 ;               
 ;******************************************************************************
-;     DRIP_COADD - Merges data frames
+;     DRIP_COADD - Coadds merged data frames
 ;******************************************************************************
 
 function drip_coadd, newdata, coadded, header, basehead, first=first, n=n, radec=radec
@@ -69,27 +69,44 @@ specmode = drip_getpar(basehead,'ICONFIG')
 ; (1D) spectra.
 ;specmode = 'X' ; Uncomment to turn off spectrum coadd for testing
 if (specmode eq 'SPECTROSCOPY') then begin ;GRISM
+
+;********************************************************
+;  CHECK to see if c2nc2, if so then combine 8 images, spextract, then
+;  continue with coadd of spectra...
+    mode=drip_getpar(header,'INSTMODE')
+    if (uint(sxpar(header, 'C2NC2')) eq 1) then mode='C2NC2'
+
+    mode=strtrim(mode,2)
+    if mode eq 'C2NC2' then begin
+        sxaddpar,header,'CNMODE','C2NC2'  ; Create CNMODE if it doesn't exist yet
+
+        if s[0] ne 3 then begin
+        ; C2NC2 data are cubes of 8 frames
+            drip_message, 'drip_coadd - invalid C2NC2 data - aborting', /fatal
+	    sxaddpar,basehead,'HISTORY','Coadd was not applied (Invalid data)'
+        endif 
+    endif
+
    ; GRISM spectra coadd
    drip_message,'drip_coadd: Coadding grism spectra'
    if keyword_set(first) then begin 
       newcoadded=newdata
-         
+      
    endif else begin
       ; Data from *self.extracted are: wavelength, flux, flux_error, spectral_order
       ; coadd flux only
       if (keyword_set(n) eq 1) then begin
-          ; This is at least the third spectrum to be coadded
-          newcoadded=[ [coadded[*,0]],[coadded[*,1]*(n-1)+newdata[*,1]/(n)],$
-              [coadded[*,2]],[coadded[*,3]] ]
           
-          ;newcoadded=newdata
-      endif else begin
-          ; This is the second spectrum to be coadded
-          newcoadded=[ [coadded[*,0]],[(coadded[*,1]+newdata[*,1])/2],$
-              [coadded[*,2]],[coadded[*,3]] ]
           
-          ;newcoadded=newdata 
-      endelse  
+          ;newcoadded=[ [coadded[*,0]],[coadded[*,1]]*(n-1)+[newdata[*,1]]/(n),$ 
+          ;    [coadded[*,2]],[coadded[*,3]]]
+          newcoadded=coadded
+     
+          newcoadded[1,*]=(newcoadded[1,*]*(n-1)+newdata[1,*])/(n)  ; flux
+          newcoadded[2,*]=sqrt(newcoadded[2,*]^2+newdata[2,*]^2)    ; flux error
+          
+       endif
+ 
       ; NEED TO ADD ERROR CHECK: coadded wave and order should be = newdata wave and order
        
    endelse    
@@ -102,6 +119,10 @@ mode=drip_getpar(header,'INSTMODE')
 if (uint(sxpar(header, 'C2NC2')) eq 1) then mode='C2NC2'
 
 mode=strtrim(mode,2)
+if mode eq 'C2NC2' then begin
+    sxaddpar,header,'CNMODE','C2NC2'  ; Create CNMODE if it doesn't exist yet
+endif
+
 
 s=size(newdata)
 if s[0] ne 2 then begin
@@ -569,8 +590,32 @@ endswitch
 newdata = odata ; Set newdata back to original since it is a pointer
                 ; to data used elsewhere (e.g. in drip_merge)
 
+; ADD TOTAL DETITIME (ON-CHIP) INTEGRATION TIME TO HEADER
+;INTTIME = Integration time on source
+
+if keyword_set(first) eq 1 then n=0   ;First image in coadd sequence
+
+;Get chop-nod mode for calculation of INTTIME
+
+cnmode_read = drip_getpar(header,'CNMODE')  ; CNMODE = NPC, NMC, or C2NC2
+
+if (cnmode_read eq 'NPC' OR cnmode_read eq 'NMC') then begin 
+    inttime_read = drip_getpar(header, 'INTTIME')
+                                         ; Nod-Match-Chop and Nod-Perp-Chop
+    inttime = float(inttime_read*(n+1))  ; Muliply by the number (n) of coadded images
+endif
+
+if cnmode_read eq 'C2NC2' then begin
+    detitime_read = drip_getpar(header,'DETITIME')
+    inttime = (detitime_read/2.0)*(n+1)   ; C2NC2 only half of chip time is on-source
+endif
+
+sxaddpar, basehead,'INTTIME', inttime
+sxaddpar, basehead, 'CNMODE', cnmode_read
+
+sxaddpar,basehead,'HISTORY','COADD applied for grism mode'
 endelse ; ELSE started at GRISM
 
-return, newcoadded  ; newcoadded
+return, newcoadded
 
 end
