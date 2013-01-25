@@ -76,15 +76,18 @@ case mode of
           end    
     'C2N': pipe=obj_new('c2n',filelist)
     'C2ND': pipe=obj_new('c2nd',filelist)
-    'C3D': pipe=obj_new('c3d',filelist)
     'C2NC2':pipe=obj_new('c2nc2',filelist)
-    'CM': pipe=obj_new('cm',filelist)
-    'MAP': pipe=obj_new('map',filelist)
     'STARE': pipe=obj_new('stare',filelist)
     'NAS': pipe=obj_new('nas',filelist)
     'NOS': pipe=obj_new('nos',filelist)
-    'TEST': pipe=obj_new('test',filelist)
-    else: pipe=obj_new('drip',filelist)
+    ;'C3D': pipe=obj_new('c3d',filelist)
+    ;'CM': pipe=obj_new('cm',filelist)
+    ;'MAP': pipe=obj_new('map',filelist)
+    ;'TEST': pipe=obj_new('test',filelist)
+    else: begin
+       pipe=obj_new()
+       drip_message,'Mode '+mode+' not recognized; will not attempt to reduce'
+    end
 endcase
 return,pipe
 end

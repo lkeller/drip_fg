@@ -137,8 +137,11 @@ switch mode of
             ; Get chop coord system: 0=SIRF, 1=TARF, 2=ERF
             dcoordsys_read=drip_getpar(header,'DITHERCS')
             dcoordsys_read=strtrim(dcoordsys_read,2)
-            if dcoordsys_read eq 'x' then dcorrdsys = 2 $
-	    else dcoordsys=fix(dcoordsys_read)
+            if dcoordsys_read eq 'x' then dcoordsys = 2 $
+	    else begin
+               if valid_num(dcoordsys_read) then dcoordsys=fix(dcoordsys_read) $
+               else dcoordsys = 2
+            endelse
             xdither = drip_getpar(header,'DITHERX')
             xdither = float(strtrim(xdither,2))
             ydither = drip_getpar(header,'DITHERY')
@@ -252,8 +255,11 @@ switch mode of
             ; Get chop coord system: 0=SIRF, 1=TARF, 2=ERF
             dcoordsys_read=drip_getpar(header,'DITHERCS')
             dcoordsys_read=strtrim(dcoordsys_read,2)
-            if dcoordsys_read eq 'x' then dcorrdsys = 2 $
-	    else dcoordsys=fix(dcoordsys_read)
+            if dcoordsys_read eq 'x' then dcoordsys = 2 $
+	    else begin
+               if valid_num(dcoordsys_read) then dcoordsys=fix(dcoordsys_read) $
+               else dcoordsys = 2
+            endelse
             xdither = drip_getpar(header,'DITHERX')
             xdither = float(strtrim(xdither,2))
             ydither = drip_getpar(header,'DITHERY')

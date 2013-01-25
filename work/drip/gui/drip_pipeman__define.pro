@@ -1278,7 +1278,9 @@ if (filelist[0] ne '') then begin
             self.name='FC_'+self.mode+'_'+detector+'_'+ $
                       strtrim(string(self.next),2)
             self.next=self.next+1
-        endif
+         endif else begin
+            return
+         endelse
     ; add files to existing file list
     endif else begin
         file=*self.filelist

@@ -238,7 +238,7 @@ for i=0, dispn-1 do begin ;get object ref from 1st child widget uvalue
 endfor
 
 ; message window item (get mw as message window object)
-mw_widget=cw_drip_mw(ibase, xsize=82, ysize=10)
+mw_widget=cw_drip_mw(ibase, xsize=90, ysize=22)
 mw_list_id=widget_info(mw_widget, /child)
 widget_control, mw_list_id, get_uvalue=mw
 drip_errproc={object:mw, funct:'print'}

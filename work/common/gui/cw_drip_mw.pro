@@ -46,7 +46,7 @@ endelse
 self.size=size(val, /n_elements)
 
 ; determine top line
-top = self.size-9
+top = self.size-21
 if top lt 0 then top = 0
 
 ; set new text

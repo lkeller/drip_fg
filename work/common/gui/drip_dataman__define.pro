@@ -144,8 +144,20 @@ if self.dapn gt 0 then begin
         name=(*self.daps[dapi]).name
     endrep until (dapi eq self.dapn-1) or (dapname eq name)
 endif else name=''
+
 ; make new dap if necessary
+
+; self.daps is a fixed-length pointer array; we need to check
+; if there is room in the array
+nmax = n_elements(self.daps)
 if dapname ne name then begin
+
+   if self.dapn ge nmax then begin
+      drip_message, 'dataman::setdap: Too many data sets (>'+$
+                    strtrim(nmax,2) + ').', /fatal
+      return
+   endif
+
     self.daps[self.dapn]=ptr_new(/allocate_heap)
     dapi=self.dapn
     self.dapn=self.dapn+1
@@ -776,7 +788,7 @@ struct={drip_dataman, $
 	mw:obj_new(), $          ;message window object
         ; data analysis products (DAPs)
         dapn:0, $                ; number of DAPs
-        daps:ptrarr(50), $       ; pointers to DAPs
+        daps:ptrarr(200), $       ; pointers to DAPs
         dapsel:'', $             ; name DAP of currently selected
         ; IDs of screen widgets
         dap_info:0L, $           ; widget id of DAP information table

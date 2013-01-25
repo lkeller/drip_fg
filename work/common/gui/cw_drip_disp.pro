@@ -286,6 +286,8 @@ case event.type of
         if event.press gt 0 then $
           for i=0,self.analn-1 do (*self.anals)[i]->input,event
     end
+    else:
+       ; do nothing (but don't crash if the user hits an unexpected key)
 endcase
 ;set 8-bit color indices
 device,decomposed=0
